@@ -10,13 +10,13 @@
       "expo-localization",
       "expo-secure-store"
     ],
-    "name": "Inspect Blocks",
+    "name": "Calendar App",
     "slug": "my-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./app/assets/image/brand.png",
+    "icon": "./app/assets/images/brand.png",
     "splash": {
-      "image": "./app/assets/image/brand.png",
+      "image": "./app/assets/images/brand.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -35,14 +35,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./app/assets/image/brand.png",
+        "foregroundImage": "./app/assets/images/brand.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.nessli.myapp",
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
-      ]
+      "package": "com.nessli.myapp"
     },
     "web": {
       "favicon": "./app/assets/core/favicon.png"
