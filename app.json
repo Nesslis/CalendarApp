@@ -1,0 +1,56 @@
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
+        }
+      ],
+      "expo-localization",
+      "expo-secure-store"
+    ],
+    "name": "Inspect Blocks",
+    "slug": "my-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./app/assets/image/brand.png",
+    "splash": {
+      "image": "./app/assets/image/brand.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.nessli.myapp"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./app/assets/image/brand.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.nessli.myapp",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./app/assets/core/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "485aa073-758c-4889-b485-da4e037d4708"
+      }
+    }
+  }
+}
