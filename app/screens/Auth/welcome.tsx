@@ -1,5 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, Button} from 'react-native';
-import { NavigationProp, ParamListBase } from '@react-navigation/native';
+import { View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import React from 'react';
 
 export default function WelcomePage({navigation}: {navigation: any}) {

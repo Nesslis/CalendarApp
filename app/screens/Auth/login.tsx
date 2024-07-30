@@ -20,8 +20,7 @@ export default function LoginPage({ navigation }: { navigation: any }) {
     if (result?.error) {
       console.log(result.msg); 
     } else {
-      console.log('Successs'); 
-      console.log(result);
+      console.log('Login Successfull');
       navigation.navigate('Home');
     }
   };
