@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { NativeBaseProvider, extendTheme } from 'native-base';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 // navigator
 import { NavigationContainer } from '@react-navigation/native';
@@ -29,11 +30,40 @@ const MainTabNavigator = () => {
   });
   return (
     <Tab.Navigator
-      screenOptions={() => ({
-        tabBarActiveTintColor: 'tomato', // Active tab color
+      screenOptions={({route}) => ({
+        tabBarActiveTintColor: '#478CCF', // Active tab color
         tabBarInactiveTintColor: 'gray', // Inactive tab color
         tabBarStyle: {
           display: 'flex', // Tab bar style
+        },
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          switch (route.name) {
+            case 'AnaSayfa':
+              iconName = focused ? 'home' : 'home-outline';
+              break;
+            case 'Takvim':
+              iconName = focused ? 'calendar' : 'calendar-outline';
+              break;
+            case 'Toplantılar':
+              iconName = focused ? 'people' : 'people-outline';
+              break;
+            case 'Etkinlikler':
+              iconName = focused ? 'today' : 'today-outline';
+              break;
+            case 'Notlarım':
+              iconName = focused ? 'document' : 'document-outline';
+              break;
+            case 'Ayarlar':
+              iconName = focused ? 'settings' : 'settings-outline';
+              break;
+            default:
+              iconName = 'home-outline';
+              break;
+          }
+
+          return <Icon name={iconName} size={size} color={color} />;
         },
       })}
     >
