@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useAuth } from '../../context/AuthContext';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FloatingAction } from "react-native-floating-action";
-
+import AddEventModal from '../../components/addEventModal';
+import { useFocusEffect } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import EventDetail from '../../components/eventDetail';
+import { useAuth } from '../../context/AuthContext';
+import { styles } from './meetingsStyle';
+import moment from 'moment';
 const actions = [
   {
     text: "Toplantı Ekle",
@@ -31,11 +35,12 @@ export default function MeetingsPage() {
   const { onSearchEvents, authState } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [showStartDatePicker, setShowStartDatePicker] = useState<boolean>(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
 
   const fetchEvents = async () => {
@@ -45,7 +50,19 @@ export default function MeetingsPage() {
         const startDateString = startDate ? startDate.toISOString().split('T')[0] : '';
         const endDateString = endDate ? endDate.toISOString().split('T')[0] : '';
         const eventsData = await onSearchEvents(1, startDateString, endDateString);
-        setEvents(eventsData);
+        const sortedMeetings = eventsData.sort((a: Event, b: Event) => {
+          const dateA = new Date(a.date).getTime();
+          const dateB = new Date(b.date).getTime();
+          if (dateA === dateB) {
+            // If dates are the same, compare times
+            const timeA = a.time ? new Date(`1970-01-01T${a.time}Z`).getTime() : 0;
+            const timeB = b.time ? new Date(`1970-01-01T${b.time}Z`).getTime() : 0;
+            return timeA - timeB;
+          } else {
+            return dateA - dateB;
+          }
+        });
+        setEvents(sortedMeetings);
       } catch (error) {
         console.error('Error fetching events:', error);
       }
@@ -56,6 +73,12 @@ export default function MeetingsPage() {
   useEffect(() => {
     fetchEvents();
   }, [startDate, endDate]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchEvents();
+    }, [authState, startDate, endDate])
+  );
 
   if (loading) {
     return (
@@ -79,14 +102,25 @@ export default function MeetingsPage() {
   const handleEventPress = (event: Event) => {
     setSelectedEvent(event);
   };
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    return `${day}.${month}.${year}`;
+  };
 
-  const renderEvent = ({ item }: { item: Event }) => (
-    <TouchableOpacity style={styles.eventRow} onPress={() => handleEventPress(item)}>
-      <Text style={styles.eventText}>{item.title || '-'}</Text>
-      <Text style={styles.eventText}>{item.date ? new Date(item.date).toLocaleDateString('tr-TR') : '-'}</Text>
-      <Text style={styles.eventText}>{item.time ? new Date(`1970-01-01T${item.time}Z`).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '-'}</Text>
-    </TouchableOpacity>
-  );
+  const renderEvent = ({ item }: { item: Event }) => {
+    const eventTime = item.time ? moment.tz(item.time, 'HH:mm:ss', 'Europe/Istanbul').format('HH:mm') : '-';
+    const truncatedTitle = item.title.length > 10 ? `${item.title.substring(0, 10)}...` : item.title;
+    return (
+      <TouchableOpacity style={styles.eventRow} onPress={() => handleEventPress(item)}>
+        <Text style={styles.eventText}>{truncatedTitle}</Text>
+        <Text style={styles.eventText}>{formatDate(item.date)}</Text>
+        <Text style={styles.eventText}>{eventTime}</Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -141,181 +175,15 @@ export default function MeetingsPage() {
           )}
         />
       </View>
-      {selectedEvent && (
-        <Modal
-          transparent={true}
-          animationType="slide"
-          visible={!!selectedEvent}
-          onRequestClose={() => setSelectedEvent(null)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>{selectedEvent.title}</Text>
-              <View style={styles.modalSeparator} />
-              <View style={styles.modalRow}>
-          <Text style={styles.modalLabel}>Tarih:</Text>
-          <Text style={styles.modalText}>{selectedEvent.date ? new Date(selectedEvent.date).toLocaleDateString('tr-TR') : '-'}</Text>
-        </View>
-        <View style={styles.modalRow}>
-          <Text style={styles.modalLabel}>Saat:</Text>
-          <Text style={styles.modalText}>{selectedEvent.time ? new Date(`1970-01-01T${selectedEvent.time}Z`).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '-'}</Text>
-        </View>
-        <View style={styles.modalRow}>
-          <Text style={styles.modalLabel}>Yer:</Text>
-          <Text style={styles.modalText}>{selectedEvent.location || '-'}</Text>
-        </View>
-        <View style={styles.modalRow}>
-          <Text style={styles.modalLabel}>Katılımcı:</Text>
-          <Text style={styles.modalText}>{selectedEvent.participant || '-'}</Text>
-        </View>
-        <View style={styles.modalSeparator} />
-          <Text style={styles.modalLabel}>Notlar:</Text>
-              <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedEvent(null)}>
-                <Text style={styles.closeButtonText}>Kapat</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-      )}
+      <EventDetail event={selectedEvent} onClose={() => setSelectedEvent(null)} />
+        <AddEventModal visible={modalVisible} onClose={()=> setModalVisible(false)} defaultCategoryId={1} onEventAdded={() => fetchEvents} />
       <FloatingAction
       color='#478CCF'
     actions={actions}
-    onPressItem={name => {
-      console.log(`selected button: ${name}`);
+    onPressItem={() => {
+      setModalVisible(true);
     }}
   />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-    padding: 20,
-  },
-  welcomeText: {
-    fontSize: 24,
-    color: '#03346E',
-    textAlign: 'left',
-    fontWeight: 'bold',
-    marginBottom: 60,
-    marginTop: 40,
-  },
-  dateContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  dateButton: {
-    padding: 10,
-    borderRadius: 20,
-    width:125,
-    backgroundColor: 'transparent',
-    borderColor: '#7FA1C3',
-    borderWidth: 1,
-    marginHorizontal: 5,
-  },
-  dateButtonText: {
-    color: '#7FA1C3',
-  },
-  clearButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#C80036',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  applyButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#81A263',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  eventsBox: {
-    backgroundColor: 'rgba(182, 199, 170, 0.5)',
-    borderRadius: 10,
-    padding: 20,
-    maxWidth:450,
-    maxHeight: 450,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#7FA1C3',
-  },
-  headerText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#03346E',
-    textAlign: 'center',
-    flex: 1,
-  },
-  eventRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#7FA1C3',
-  },
-  eventText: {
-    fontSize: 14,
-    color: '#03346E',
-    textAlign: 'center',
-    flex: 1,
-  },
-  modalContainer: {
-    flex: 1,
-    height:350,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    width: '80%',
-    height:350,
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 15,
-  },
-  modalRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 5,
-    marginBottom:12,
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  modalSeparator: {
-    borderBottomColor: '#7FA1C3', 
-    borderBottomWidth: 1, 
-    marginVertical: 10, 
-  },
-  modalLabel: {
-    fontWeight: 'bold', 
-  },
-  modalText: {
-    marginLeft: 10,
-  },
-  closeButton: {
-    marginTop: 30,
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: 'rgba(182, 199, 170, 1)',
-  },
-  closeButtonText: {
-    color: '#fff',
-    textAlign: 'center',
-  },
-});
