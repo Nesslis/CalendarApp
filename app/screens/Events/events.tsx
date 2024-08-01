@@ -1,11 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Modal } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useAuth } from '../../context/AuthContext';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import { FloatingAction } from "react-native-floating-action";
+import { useFocusEffect } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import EventDetail from '../../components/eventDetail';
 import { Picker } from '@react-native-picker/picker';
-
+import { useAuth } from '../../context/AuthContext';
+import moment from 'moment-timezone';
+import styles from './eventStyles';
+import AddEventModal from '../../components/addEventModal';
 
 interface Event {
   event_id: number;
@@ -23,9 +27,9 @@ interface Event {
 
 const actions = [
   {
-    text: "Etkinlik Ekle",
-    name: "bt_accessibility",
-    position: 2
+    text: 'Etkinlik ekle',
+      name: 'bt_add_event',
+      position: 1
   }
 ];
 
@@ -40,12 +44,13 @@ export default function EventsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>();
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [showStartDatePicker, setShowStartDatePicker] = useState<boolean>(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState<boolean>(false);
   const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [addEventModalVisible, setAddEventModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -71,7 +76,12 @@ export default function EventsPage() {
         const startDateString = startDate ? startDate.toISOString().split('T')[0] : '';
         const endDateString = endDate ? endDate.toISOString().split('T')[0] : '';
         const eventsData = await onSearchEvents(selectedCategory, startDateString, endDateString);
-        setEvents(eventsData);
+        const sortedEvents = eventsData.sort((a: Event, b: Event) => {
+          const dateTimeA = moment.tz(`${a.date} ${a.time}`, 'YYYY-MM-DD HH:mm:ss', 'Europe/Istanbul').toDate();
+          const dateTimeB = moment.tz(`${b.date} ${b.time}`, 'YYYY-MM-DD HH:mm:ss', 'Europe/Istanbul').toDate();
+        return dateTimeA.getTime() - dateTimeB.getTime();
+        });
+        setEvents(sortedEvents);
       } catch (error) {
         console.error('Error fetching events:', error);
       }
@@ -83,6 +93,12 @@ export default function EventsPage() {
     fetchEvents();
   }, [authState, selectedCategory, startDate, endDate]);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchEvents();
+    }, [authState, selectedCategory, startDate, endDate])
+  );
+  
   if (loading) {
     return (
       <View style={styles.container}>
@@ -103,14 +119,25 @@ export default function EventsPage() {
     setLoading(true);
     fetchEvents();
   };
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    return `${day}.${month}.${year}`;
+  };
 
-  const renderEvent = ({ item }: { item: Event }) => (
-    <TouchableOpacity style={styles.eventRow} onPress={() => handleEventPress(item)}>
-      <Text style={styles.eventText}>{item.title || '-'}</Text>
-      <Text style={styles.eventText}>{item.date ? new Date(item.date).toLocaleDateString('tr-TR') : '-'}</Text>
-      <Text style={styles.eventText}>{item.time ? new Date(`1970-01-01T${item.time}Z`).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '-'}</Text>
-    </TouchableOpacity>
-  );
+  const renderEvent = ({ item }: { item: Event }) => {
+    const eventTime = item.time ? moment.tz(item.time, 'HH:mm:ss', 'Europe/Istanbul').format('HH:mm') : '-';
+    const truncatedTitle = item.title.length > 10 ? `${item.title.substring(0, 10)}...` : item.title;
+    return (
+      <TouchableOpacity style={styles.eventRow} onPress={() => handleEventPress(item)}>
+        <Text style={styles.eventText}>{truncatedTitle}</Text>
+        <Text style={styles.eventText}>{formatDate(item.date)}</Text>
+        <Text style={styles.eventText}>{eventTime}</Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -135,53 +162,7 @@ export default function EventsPage() {
           )}
         />
       </View>
-      {selectedEvent && (
-        <Modal
-          transparent={true}
-          animationType="slide"
-          visible={!!selectedEvent}
-          onRequestClose={() => setSelectedEvent(null)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <TouchableOpacity style={styles.editIconContainer} onPress={() => console.log('Edit Event')}>
-                <Icon name="pencil" size={20} color="#000" />
-              </TouchableOpacity>
-              <Text style={styles.modalTitle}>{selectedEvent.title}</Text>
-              <View style={styles.modalSeparator} />
-              <View style={styles.modalRow}>
-                <Text style={styles.modalLabel}>Tarih:</Text>
-                <Text style={styles.modalText}>{selectedEvent.date ? new Date(selectedEvent.date).toLocaleDateString('tr-TR') : '-'}</Text>
-              </View>
-              <View style={styles.modalRow}>
-                <Text style={styles.modalLabel}>Saat:</Text>
-                <Text style={styles.modalText}>{selectedEvent.time ? new Date(`1970-01-01T${selectedEvent.time}Z`).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '-'}</Text>
-              </View>
-              {selectedEvent.location && (
-                <View style={styles.modalRow}>
-                  <Text style={styles.modalLabel}>Yer:</Text>
-                  <Text style={styles.modalText}>{selectedEvent.location}</Text>
-                </View>
-              )}
-              {selectedEvent.participant && (
-                <View style={styles.modalRow}>
-                  <Text style={styles.modalLabel}>Katılımcı:</Text>
-                  <Text style={styles.modalText}>{selectedEvent.participant}</Text>
-                </View>
-              )}
-              {selectedEvent.content && (
-                <View style={styles.modalRow}>
-                  <Text style={styles.modalLabel}>Notlar:</Text>
-                  <Text style={styles.modalText}>{selectedEvent.content}</Text>
-                </View>
-              )}
-              <TouchableOpacity style={styles.modalCloseButton} onPress={() => setSelectedEvent(null)}>
-                <Text style={styles.closeButtonText}>Kapat</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-      )}
+      <EventDetail event={selectedEvent} onClose={() => setSelectedEvent(null)} />
       <Modal
         transparent={true}
         animationType="slide"
@@ -259,159 +240,12 @@ export default function EventsPage() {
           </View>
         </View>
       </Modal>
+      <AddEventModal visible={addEventModalVisible} onClose={()=> setAddEventModalVisible(false)} onEventAdded={() => fetchEvents} />
       <FloatingAction
       color='#478CCF'
     actions={actions}
-    onPressItem={name => {
-      console.log(`selected button: ${name}`);
-    }}
+    onPressItem={() => setAddEventModalVisible(true)}
   />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#F5F5F5',
-  },
-  filterIconContainer: {
-    position: 'absolute',
-    top: 43,
-    right: 30,
-    zIndex: 1,
-  },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#03346E',
-    marginBottom: 30,
-    marginTop: 20,
-    textAlign: 'left',
-  },
-  eventsBox: {
-    backgroundColor: 'rgba(182, 199, 170, 0.5)',
-    borderRadius: 10,
-    padding: 20,
-    marginTop: 30,
-    maxWidth:450,
-    maxHeight: 450,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingBottom: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: '#7FA1C3',
-  },
-  headerText: {
-    fontWeight: 'bold',
-    color: '#03346E',
-  },
-  eventRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#7FA1C3',
-  },
-  eventText: {
-    color: '#333',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    backgroundColor: '#FFF',
-    borderRadius: 10,
-    padding: 20,
-    width: '80%',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#03346E',
-    marginBottom: 10,
-  },
-  modalSeparator: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#7FA1C3',
-    marginVertical: 10,
-  },
-  modalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  modalLabel: {
-    fontWeight: 'bold',
-    color: '#03346E',
-  },
-  modalText: {
-    color: '#333',
-  },
-  datePickerButton: {
-    backgroundColor: '#EEE',
-    padding: 10,
-    borderRadius: 5,
-  },
-  datePickerButtonText: {
-    color: '#333',
-  },
-  modalButtonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  pickerContainer: {
-    marginVertical: 10,
-  },
-  label: {
-    fontWeight: 'bold',
-    color: '#03346E',
-  },
-  picker: {
-    height: 50,
-    width: '100%',
-  },
-  applyButton: {
-    backgroundColor: 'rgba(182, 199, 170, 1)',
-    padding: 12,
-    borderRadius: 5,
-  },
-  applyButtonText: {
-    color: '#FFF',
-  },
-  clearButton: {
-    backgroundColor: '#999',
-    padding: 12,
-    borderRadius: 5,
-  },
-  clearButtonText: {
-    color: '#FFF',
-  },
-  closeButton: {
-    backgroundColor: '#C80036',
-    padding: 12,
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: '#FFF',
-    textAlign: 'center',
-  },
-  editIconContainer: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-  },
-  modalCloseButton: {
-    marginTop: 30,
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: 'rgba(182, 199, 170, 1)',
-  },
-});
