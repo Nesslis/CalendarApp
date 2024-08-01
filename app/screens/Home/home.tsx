@@ -1,7 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import moment from 'moment';
+import { View, Text, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { styles } from './homeStyles';
+import moment from 'moment';
+import 'moment/locale/tr';
+import 'moment-timezone';
+import { useFocusEffect } from '@react-navigation/native';
+import EventDetail from '../../components/eventDetail';
+
 interface Event {
   event_id: number;
   user_id: number;
@@ -13,30 +19,79 @@ interface Event {
   participant: string | null;
   content: string | null;
 }
+
 export default function HomePage() {
-  const { onSearchEvents } = useAuth();
+  const { onSearchEvents, authState } = useAuth();
+  const [name, setName] = useState("");
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(moment().tz('Europe/Istanbul').format('YYYY-MM-DD'));
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    if (authState?.user) {
+      setName(authState.user.firstName);
+    }
+  }, [authState?.user]);
+
+  useEffect(() => {
+    fetchEvents(selectedDate);
+  }, [onSearchEvents, selectedDate]);
+
+ 
+
+  const fetchEvents = async (date: string) => {
+    if (authState?.authenticated) {
       try {
-        if(!onSearchEvents) return;
-        const today = moment().format('YYYY-MM-DD');
-        const fetchedEvents = await onSearchEvents(undefined, today, today); // Fetch events for today
-        setEvents(fetchedEvents);
+        if (!onSearchEvents) return;
+        const eventsData = await onSearchEvents(undefined, date, date);
+        const sortedEvents = eventsData.sort((a: Event, b: Event) => {
+          const dateTimeA = moment.tz(`${a.date} ${a.time}`, 'YYYY-MM-DD HH:mm:ss', 'Europe/Istanbul').toDate();
+          const dateTimeB = moment.tz(`${b.date} ${b.time}`, 'YYYY-MM-DD HH:mm:ss', 'Europe/Istanbul').toDate();
+        return dateTimeA.getTime() - dateTimeB.getTime();
+        });
+        setEvents(sortedEvents);
       } catch (error) {
         console.error('Error fetching events:', error);
-      } finally {
-        setLoading(false);
       }
-    };
+    }
+    setLoading(false);
+  };
+  
 
-    fetchEvents();
-  }, [onSearchEvents]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchEvents(selectedDate);
+    }, [authState, selectedDate])
+  );
 
-  const formatTime = (time : string) => {
-    return moment(time, 'HH:mm:ss').format('HH:mm');
+  const renderWeekDays = () => {
+    const startOfWeek = moment().tz('Europe/Istanbul').startOf('isoWeek');
+    const days = [];
+
+    for (let i = 0; i < 7; i++) {
+      const day = startOfWeek.clone().add(i, 'days');
+      const isSelected = day.format('YYYY-MM-DD') === selectedDate;
+      days.push(
+        <TouchableOpacity key={i} onPress={() => setSelectedDate(day.format('YYYY-MM-DD'))}>
+            <View style={[styles.dayContainer, isSelected && styles.selectedDay]}>
+            <Text style={[styles.dayText, isSelected && styles.selectedDayText]}>{day.format('dd')}</Text>
+            <Text style={[styles.dateText, isSelected && styles.selectedDayText]}>{day.date()}</Text>
+          </View>
+        </TouchableOpacity>
+      );
+    }
+
+    return days;
+  };
+
+  const formatTime = (time: string) => {
+    return moment.tz(time, 'HH:mm:ss', 'Europe/Istanbul').format('HH:mm');
+  };
+
+  const handleEventPress = (event: Event) => {
+    setSelectedEvent(event);
+    console.log(event)
   };
 
   if (loading) {
@@ -48,79 +103,28 @@ export default function HomePage() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.headerText}>Bugünkü etkinlikleriniz:</Text>
+    <ScrollView style={styles.container}>
+      <Text style={styles.greeting}>Merhaba, {name}</Text>
+      <View style={styles.weekContainer}>
+        {renderWeekDays()}
+      </View>
+      <Text style={styles.headerText}>Günlük Etkinlikleriniz :</Text>
       <View style={styles.separator} />
       {events.length > 0 ? (
         events.map((event, index) => (
-          <View key={index} style={styles.eventBox}>
-            <Text style={styles.eventTime}>{formatTime(event.time)}</Text>
-            <Text style={styles.eventTitle}>{event.title}</Text>
-          </View>
+          <TouchableOpacity key={index} onPress={() => handleEventPress(event)}>
+              <View style={styles.eventBox}>
+              <Text style={styles.eventTime}>{formatTime(event.time)}</Text>
+              <Text style={styles.eventTitle}>{event.title}</Text>
+            </View>
+          </TouchableOpacity>
         ))
       ) : (
         <Text style={styles.noEvents}>Bugün için kayıtlı etkinliğiniz yok.</Text>
       )}
-    </View>
+      {selectedEvent && (
+          <EventDetail event={selectedEvent} onClose={() => setSelectedEvent(null)} />
+      )}
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    padding: 20,
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#03346E',
-    marginBottom: 30,
-    marginTop: 20,
-    textAlign: 'left',
-  },
-  eventTitle: {
-    fontSize: 18,
-    color: '#03346E',
-    marginVertical: 10,
-    alignItems: 'center',
-    alignSelf: 'center',
-    marginTop: 15,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#7FA1C3',
-    alignSelf: 'stretch',
-    marginVertical: 10,
-    marginTop: 25,
-    marginBottom: 55,
-  },
-  eventBox: {
-    backgroundColor: 'rgba(182, 199, 170, 0.5)',
-    padding: 10,
-    borderRadius: 10,
-    marginVertical: 5,
-    width: '80%',
-    alignSelf: 'center',
-    marginBottom: 25,
-  },
-  eventTime: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#03346E',
-  },
-  eventsTitle: {
-    fontSize: 18,
-    color: '#03346E',
-    marginTop: 5,
-    alignItems: 'center',
-    alignSelf: 'center',
-  },
-  noEvents: {
-    fontSize: 16,
-    color: '#999',
-    marginTop: 20,
-  },
-});
