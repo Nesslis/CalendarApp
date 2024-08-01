@@ -1,49 +1,68 @@
 import { View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import React from 'react';
 
-export default function WelcomePage({navigation}: {navigation: any}) {
+export default function WelcomePage({ navigation }: { navigation: any }) {
   return (
     <View style={styles.container}>
-      <View style={styles.topSection} />
+      <View style={styles.topRightShape} />
+      <View style={styles.bottomLeftShape} />
+      <View style={styles.bottomLeftShape2} />
       <View style={styles.mainSection}>
         <Text style={styles.title}>Lets Get Started</Text>
         <Text style={styles.subtitle}>Manage meetings with ease</Text>
         <View style={styles.buttonContainer}>
-        <TouchableOpacity
+          <TouchableOpacity
             style={styles.button}
             onPress={() => navigation.navigate('Login')}
-          ><Text style={styles.buttonText}>Login</Text>
+          >
+            <Text style={styles.buttonText}>Giriş Yap</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.outlineButton]}
             onPress={() => navigation.navigate('Register')}
           >
-            <Text style={styles.outlineButtonText}>Register</Text> 
-            </TouchableOpacity>
+            <Text style={styles.outlineButtonText}>Kayıt ol</Text>
+          </TouchableOpacity>
         </View>
       </View>
-      <View style={styles.bottomSection} />
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#83c8f2',
+    backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  topSection: {
-    backgroundColor: '#49a5de',
-    width: '100%',
-    height: '18%',
+  topRightShape: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 150,
+    height: 120,
+    backgroundColor: 'rgba(129,162,99, 0.3)',
     borderBottomLeftRadius: 250,
+    zIndex: -1,
   },
-  bottomSection: {
-    backgroundColor: '#49a5de',
-    width: '100%',
-    height: '18%',
-    borderTopRightRadius: 250,
+  bottomLeftShape: {
+    position: 'absolute',
+    bottom: -70,
+    left: -90,
+    width: 230,
+    height: 230,
+    backgroundColor: 'rgba(129, 162, 99, 0.4)',
+    borderRadius: 250,
+  },
+  bottomLeftShape2: {
+    position: 'absolute',
+    bottom: -110,
+    left: -10,
+    width: 230,
+    height: 230,
+    backgroundColor: 'rgba(129, 162, 99, 0.3)',
+    borderRadius: 250,
   },
   mainSection: {
     flex: 1,
@@ -53,13 +72,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    color: '#fff',
+    color: '#03346E',
     fontWeight: 'bold',
     marginBottom: 20,
   },
   subtitle: {
     fontSize: 16,
-    color: '#fff',
+    color: '#03346E',
     marginBottom: 70,
   },
   buttonContainer: {
@@ -67,26 +86,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   button: {
-    backgroundColor: '#fff',
+    backgroundColor: '#03346E',
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 10,
     marginRight: 10,
   },
   buttonText: {
-    color: '#83c8f2',
+    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },
   outlineButton: {
-    borderColor: '#fff',
+    borderColor: '#03346E',
     borderWidth: 2,
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 10,
   },
   outlineButtonText: {
-    color: '#fff',
+    color: '#03346E',
     fontSize: 18,
     fontWeight: 'bold',
   },
