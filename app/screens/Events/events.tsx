@@ -18,11 +18,11 @@ interface Event {
   title: string;
   date: string;
   time: string;
-  location: string;
-  participant: string | null;
+  location?: string;
+  participant?: string;
   created_at: string;
   updated_at: string;
-  content: string | null;
+  content?: string;
 }
 
 const actions = [

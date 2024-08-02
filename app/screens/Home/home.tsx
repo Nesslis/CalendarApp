@@ -15,9 +15,11 @@ interface Event {
   title: string;
   date: string;
   time: string;
-  location: string;
-  participant: string | null;
-  content: string | null;
+  location?: string;
+  participant?: string;
+  created_at: string;
+  updated_at: string;
+  content?: string;
 }
 
 export default function HomePage() {
@@ -65,6 +67,10 @@ export default function HomePage() {
     }, [authState, selectedDate])
   );
 
+  const refreshEvents = () => {
+    fetchEvents(selectedDate);
+  };
+
   const renderWeekDays = () => {
     const startOfWeek = moment().tz('Europe/Istanbul').startOf('isoWeek');
     const days = [];
@@ -91,7 +97,6 @@ export default function HomePage() {
 
   const handleEventPress = (event: Event) => {
     setSelectedEvent(event);
-    console.log(event)
   };
 
   if (loading) {
@@ -123,7 +128,7 @@ export default function HomePage() {
         <Text style={styles.noEvents}>Bugün için kayıtlı etkinliğiniz yok.</Text>
       )}
       {selectedEvent && (
-          <EventDetail event={selectedEvent} onClose={() => setSelectedEvent(null)} />
+          <EventDetail event={selectedEvent} onClose={() => {setSelectedEvent(null); refreshEvents();}} />
       )}
     </ScrollView>
   );
