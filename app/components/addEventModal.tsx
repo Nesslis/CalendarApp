@@ -4,7 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
-
+import moment from 'moment-timezone';
 
 interface Category {
   category_id: number;
@@ -58,7 +58,7 @@ export default function AddEventModal({ visible, onClose, defaultCategoryId, onE
       const eventData = {
         category_id: selectedCategory,
         title,
-        date: date.toISOString().split('T')[0],
+        date: moment(date).tz('UTC').format('YYYY-MM-DD'),
         time,
         location,
         participant,
