@@ -1,6 +1,8 @@
-import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, TextInput, Alert } from 'react-native';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import React from 'react';
+import { useAuth } from '../context/AuthContext';
+import React, { useState } from 'react';
 
 interface Event {
   event_id: number;
@@ -22,6 +24,55 @@ interface EventDetailProps {
 }
 
 const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
+  const { onEditEvent, onDeleteEvent } = useAuth();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedEvent, setEditedEvent] = useState(event);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  
+  const handleEdit = () => {
+    setIsEditMode(prevMode => !prevMode);
+  };
+
+  const handleSave = async () => {
+    if (!event || !onEditEvent || !editedEvent) return;
+
+    try {
+      await onEditEvent(event.event_id, {
+        title: editedEvent.title,
+        date: editedEvent.date,
+        time: editedEvent.time,
+        location: editedEvent.location,
+        participant: editedEvent.participant,
+        content: editedEvent.content,
+        category_id: editedEvent.category_id,
+      });
+      setIsEditMode(false);
+      Alert.alert('Etkinlik başarıyla güncellendi');
+      onClose();
+    } catch (error) {
+      console.error('Failed to edit event:', error);
+    }
+  };
+  const handleChange = (field: keyof Event, value: string) => {
+    if (!editedEvent) return;
+    setEditedEvent({ ...editedEvent, [field]: value });
+  };
+  const handleDateChange = (event: DateTimePickerEvent, selectedDate: Date | undefined) => {
+    const currentDate = selectedDate || new Date();
+    setShowDatePicker(false);
+    handleChange('date', currentDate.toString());
+  };
+  const handleDelete = async() => {
+    if(!event || !onDeleteEvent) return;
+    try{
+      await onDeleteEvent(event.event_id);
+      Alert.alert('Etkinlik başarıyla silindi');
+      onClose();
+    }catch(error) {
+      console.error('Failed to delete event ', error)
+    }
+  }
+
   if (!event) return null;
 
   const renderDetail = () => {
@@ -31,11 +82,27 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
           <>
             <View style={styles.modalRow}>
               <Text style={styles.modalLabel}>Katılımcı:</Text>
-              <Text style={styles.modalText}>{event.participant}</Text>
+              {isEditMode ? (
+                <TextInput
+                  style={styles.modalInput}
+                  value={editedEvent?.participant || ''}
+                  onChangeText={(text) => handleChange('participant', text)}
+                />
+              ) : (
+                <Text style={styles.modalText}>{event.participant}</Text>
+              )}
             </View>
             <View style={styles.modalRow}>
               <Text style={styles.modalLabel}>Yer:</Text>
-              <Text style={styles.modalText}>{event.location}</Text>
+               {isEditMode ? (
+                <TextInput
+                  style={styles.modalInput}
+                  value={editedEvent?.location || ''}
+                  onChangeText={(text) => handleChange('location', text)}
+                />
+              ) : (
+                <Text style={styles.modalText}>{event.location}</Text>
+              )}
             </View>
           </>
         );
@@ -43,7 +110,15 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
         return (
           <View style={styles.modalRow}>
             <Text style={styles.modalLabel}>Kişi:</Text>
-            <Text style={styles.modalText}>{event.participant}</Text>
+            {isEditMode ? (
+              <TextInput
+                style={styles.modalInput}
+                value={editedEvent?.participant || ''}
+                onChangeText={(text) => handleChange('participant', text)}
+              />
+            ) : (
+              <Text style={styles.modalText}>{event.participant}</Text>
+            )}
           </View>
         );
       case 3: // Denetim
@@ -53,7 +128,15 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
         return (
           <View style={styles.modalRow}>
             <Text style={styles.modalLabel}>Yer:</Text>
-            <Text style={styles.modalText}>{event.location}</Text>
+            {isEditMode ? (
+              <TextInput
+                style={styles.modalInput}
+                value={editedEvent?.location || ''}
+                onChangeText={(text) => handleChange('location', text)}
+              />
+            ) : (
+              <Text style={styles.modalText}>{event.location}</Text>
+            )}
           </View>
         );
       case 7: // Rapor Analizi
@@ -65,7 +148,7 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
     }
   };
 
-  const formatTime = (time: string) => {
+  const formatTime = (time: string ) => {
     const [hours, minutes] = time.split(':');
     return `${hours}:${minutes}`;
   };
@@ -86,26 +169,86 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <TouchableOpacity style={styles.editIconContainer} onPress={() => console.log('Edit Event')}>
-            <Icon name="pencil" size={20} color="#000" />
+          <TouchableOpacity style={styles.editIconContainer} onPress={handleEdit}>
+            <Icon name="pencil" size={22} color="#000" />
           </TouchableOpacity>
-          <Text style={styles.modalTitle}>{event.title}</Text>
+          <TouchableOpacity
+              style={styles.deleteIconContainer}
+              onPress={() =>
+                Alert.alert('Sil', 'Bu etkinliği silmek istediğinizden emin misiniz?', [
+                  { text: 'Hayır' },
+                  { text: 'Evet', onPress: handleDelete }
+                ])
+              }
+            >
+              <Icon name="trash" size={22} color="red" />
+            </TouchableOpacity>
+          <Text style={styles.modalTitle}>
+          {isEditMode ? (
+            <TextInput
+              style={styles.modalInput}
+              value={editedEvent?.title || ''}
+              onChangeText={(text) => handleChange('title', text)}
+            />
+          ) : (
+            event.title
+          )}
+          </Text>
           <View style={styles.modalSeparator} />
           <View style={styles.modalRow}>
             <Text style={styles.modalLabel}>Tarih:</Text>
-            <Text style={styles.modalText}>{formatDate(event.date)}</Text>
+            {isEditMode ? (
+              <>
+                <TouchableOpacity style={styles.datePickerButton} onPress={() => setShowDatePicker(true)}>
+                  <Text style={styles.datePickerButtonText}>
+                    {editedEvent?.date ? formatDate(editedEvent.date) : 'Tarih Seçiniz'}
+                  </Text>
+                </TouchableOpacity>
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={new Date(editedEvent?.date || '')}
+                    mode="date"
+                    display="default"
+                    onChange={handleDateChange}
+                  />
+                )}
+              </>
+            ) : (
+              <Text style={styles.modalText}>{formatDate(event.date)}</Text>
+            )}
           </View>
           <View style={styles.modalRow}>
             <Text style={styles.modalLabel}>Saat:</Text>
-            <Text style={styles.modalText}>{formatTime(event.time)}</Text>
+            {isEditMode ? (
+              <TextInput
+                style={styles.modalInput}
+                value={formatTime(editedEvent?.time )|| ''}
+                onChangeText={(text) => handleChange('time', formatTime(text))}
+              />
+            ) : (
+              <Text style={styles.modalText}>{formatTime(event.time)}</Text>
+            )}
           </View>
           {event.content && (
             <View style={styles.modalRow}>
               <Text style={styles.modalLabel}>İçerik:</Text>
-              <Text style={styles.modalText}>{event.content}</Text>
+              {isEditMode ? (
+                <TextInput
+                  style={styles.modalInput}
+                  value={editedEvent?.content || ''}
+                  onChangeText={(text) => handleChange('content', text)}
+                />
+              ) : (
+                <Text style={styles.modalText}>{event.content}</Text>
+              )}
             </View>
           )}
           {renderDetail()}
+          {isEditMode && (
+            <TouchableOpacity style={styles.modalSaveButton} onPress={handleSave}>
+            <Text style={styles.modalSaveButtonText}>Kaydet</Text>
+          </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
             <Text style={styles.closeButtonText}>Kapat</Text>
           </TouchableOpacity>
@@ -128,6 +271,7 @@ const styles = StyleSheet.create({
       borderRadius: 10,
       padding: 20,
       width: '80%',
+      position: 'relative',
     },
     modalTitle: {
       fontSize: 20,
@@ -159,18 +303,59 @@ const styles = StyleSheet.create({
     },
     closeButtonText: {
       color: '#FFF',
+      fontSize: 18,
       textAlign: 'center',
+      fontWeight: 'bold',
     },
     editIconContainer: {
       position: 'absolute',
-      top: 10,
-      right: 10,
+      top: 20,
+      right: 60,
+      zIndex: 1,
+    },
+    deleteIconContainer: {
+      position: 'absolute',
+      top: 20,
+      right: 20,
+      zIndex: 1,
     },
     modalCloseButton: {
       marginTop: 30,
       padding: 10,
       borderRadius: 10,
       backgroundColor: 'rgba(182, 199, 170, 1)',
+    },
+    modalSaveButton: {
+      marginTop: 30,
+      padding: 10,
+      borderRadius: 10,
+      borderWidth: 2,
+      borderColor: 'rgba(182, 199, 170, 1)',
+    },
+    modalSaveButtonText: {
+      color: 'rgba(182, 199, 170, 1)',
+      fontSize: 16,
+      textAlign: 'center',
+      fontWeight: 'bold',
+    },
+    modalInput: {
+      borderBottomWidth: 1,
+      borderBottomColor: '#7FA1C3',
+      padding: 5,
+      color: '#333',
+      width: '80%',
+    },
+    datePickerButton: {
+      padding: 10,
+      width: '60%',
+      textAlign: 'center',
+      borderRadius: 5,
+      borderWidth: 1,
+      borderColor: '#7FA1C3',
+    },
+    datePickerButtonText: {
+      textAlign: 'center',
+      color: '#333',
     },
   });
   
