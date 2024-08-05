@@ -193,6 +193,7 @@ const CalendarPage = () => {
         {renderDays()}
       </View>
       <FloatingAction
+      color='#478CCF'
     actions={actions}
     onPressItem={name => {
       console.log(`selected button: ${name}`);
@@ -205,17 +206,18 @@ const CalendarPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F5F5F5',
     padding: 20,
   },
   header: {
+    marginTop:20,
     marginBottom: 20,
     alignItems: 'center',
   },
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#03346E',
   },
   monthContainer: {
     flexDirection: 'row',
@@ -223,9 +225,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   arrowText: {
-    fontSize: 24,
-    color: '#333',
-    marginHorizontal: 10,
+    fontSize: 26,
+    color: '#03346E',
+    marginHorizontal: 70,
   },
   daysOfWeekContainer: {
     flexDirection: 'row',
@@ -240,7 +242,7 @@ const styles = StyleSheet.create({
   },
   dayOfWeekText: {
     fontSize: 18,
-    color: '#333',
+    color: '#03346E',
     fontWeight: 'bold',
   },
   calendarContainer: {
@@ -257,15 +259,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   todayContainer: {
-    borderColor: '#000',
+    borderColor: '#03346E',
     borderWidth: 2,
   },
   dayText: {
     fontSize: 18,
-    color: '#333',
+    color: '#03346E',
   },
   todayText: {
-    color: '#558FAA',
+    color: '#478CCF',
     fontWeight: 'bold',
   },
   modalContainer: {
@@ -283,17 +285,18 @@ const styles = StyleSheet.create({
   pickerItem: {
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  selectedItem: {
-    backgroundColor: '#eee',
+    borderBottomColor: '#ddd',
   },
   pickerText: {
-    fontSize: 18,
-    textAlign: 'center',
+    fontSize: 20,
+    color: '#03346E',
+  },
+  selectedItem: {
+    backgroundColor: '#E8F1FA',
   },
   selectedItemText: {
     fontWeight: 'bold',
+    color: '#478CCF',
   },
 });
 
