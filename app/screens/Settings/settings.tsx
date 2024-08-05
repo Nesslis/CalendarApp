@@ -1,20 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 
 export default function SettingsPage() {
-  const { authState, onLogout } = useAuth();
-  const [firstName, setFirstName] = useState<string>('');
-  const [lastName, setLastName] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
+  const {  onLogout } = useAuth();
 
-  useEffect(() => {
-    if (authState?.user) {
-      setFirstName(authState.user.firstName);
-      setLastName(authState.user.lastName);
-      setEmail(authState.user.email);
-    }
-  }, [authState?.user]);
   
   const handleLogout = async () => {
     try {
@@ -28,10 +18,11 @@ export default function SettingsPage() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.topSection}>
-        <Text style={styles.greetingText}>Merhaba,</Text>
-        <Text style={styles.greetingName}>{firstName} {lastName}</Text>
-      </View>
+      <View style={styles.topRightShape} />
+      <View style={styles.bottomLeftShape} />
+      <View style={styles.bottomLeftShape2} />
+
+      <View style = {styles.sectionConteiner}>
       <Text style={styles.sectionTitle}>Ayarlar</Text>
       <View style={styles.separator} />
 
@@ -45,9 +36,10 @@ export default function SettingsPage() {
 
       <View style={styles.separator} />
 
-      <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => { /* delete account functionality */ }}>
+      <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => { /* delete account */ }}>
         <Text style={styles.buttonText}>Hesabımı Sil</Text>
       </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -55,32 +47,50 @@ export default function SettingsPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5EDED',
+    backgroundColor: '#F5F5F5',
     padding: 20,
   },
-  topSection: {
-    backgroundColor: '#81A263',
-    width: '100%',
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 30,
-    alignItems: 'center',
+  topRightShape: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 150,
+    height: 120,
+    backgroundColor: 'rgba(129,162,99, 0.3)',
+    borderBottomLeftRadius: 250,
+    zIndex: -1,
   },
-  greetingText: {
-    fontSize: 20,
-    color: '#FFFFFF',
+  bottomLeftShape: {
+    position: 'absolute',
+    bottom: -70,
+    left: -90,
+    width: 230,
+    height: 230,
+    backgroundColor: 'rgba(129, 162, 99, 0.4)',
+    borderRadius: 250,
   },
-  greetingName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+  bottomLeftShape2: {
+    position: 'absolute',
+    bottom: -110,
+    left: -10,
+    width: 230,
+    height: 230,
+    backgroundColor: 'rgba(129, 162, 99, 0.3)',
+    borderRadius: 250,
+  },
+  sectionConteiner: {
+    flex: 1,
+    justifyContent: 'center',
+    alignSelf: 'center',
   },
   sectionTitle: {
+    justifyContent: 'center',
+    alignSelf: 'center',
     fontSize: 26,
     fontWeight: 'bold',
     textAlign: 'center',
     marginVertical: 20,
-    color: '#698474',
+    color: '#03346E',
   },
   separator: {
     height: 1,
