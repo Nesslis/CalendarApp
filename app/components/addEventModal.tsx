@@ -97,10 +97,6 @@ export default function AddEventModal({ visible, onClose, defaultCategoryId, onE
               <Text style={styles.label}>Katılımcı:</Text>
               <TextInput style={styles.input} value={participant} onChangeText={setParticipant} />
             </View>
-            <View style={styles.inputRow}>
-              <Text style={styles.label}>Notlar:</Text>
-              <TextInput style={styles.input} value={content} onChangeText={setContent} />
-            </View>
           </>
         );
       case 2:
