@@ -126,7 +126,7 @@ export default function MeetingsPage() {
     <View style={styles.container}>
       <View style={styles.dateContainer}>
         <TouchableOpacity style={styles.dateButton} onPress={() => setShowStartDatePicker(true)}>
-          <Text style={styles.dateButtonText}>Başlangıç Tarihi</Text>
+          <Text style={styles.dateButtonText}>{startDate ? formatDate(startDate.toISOString()) : 'Başlangıç Tarihi'}</Text>
         </TouchableOpacity>
         {showStartDatePicker && (
           <DateTimePicker
@@ -140,7 +140,7 @@ export default function MeetingsPage() {
           />
         )}
         <TouchableOpacity style={styles.dateButton} onPress={() => setShowEndDatePicker(true)}>
-          <Text style={styles.dateButtonText}>Bitiş Tarihi </Text>
+          <Text style={styles.dateButtonText}>{endDate ? formatDate(endDate.toISOString()) : 'Bitiş Tarihi'}</Text>
         </TouchableOpacity>
         {showEndDatePicker && (
           <DateTimePicker

@@ -162,7 +162,9 @@ export default function EventsPage() {
           )}
         />
       </View>
+      {selectedEvent && (
       <EventDetail event={selectedEvent} onClose={() => setSelectedEvent(null)} />
+      )}
       <Modal
         transparent={true}
         animationType="slide"
