@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, ScrollView, TouchableWithoutFeedback } from 'react-native';
 import { FloatingAction } from "react-native-floating-action";
-
+import { useAuth } from '../../context/AuthContext';
+import AddEventModal from '../../components/addEventModal';
+import calendarStyles from './calendarStyles';
+import { useNavigation } from '@react-navigation/native';
 const actions = [
   {
     text: "Etkinlik Ekle",
@@ -9,16 +12,31 @@ const actions = [
     position: 2
   }
 ];
-
+interface Event {
+  event_id: number;
+  user_id: number;
+  category_id: number;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  participant: string;
+  created_at: string;
+  updated_at: string;
+  content: string | null;
+}
 const CalendarPage = () => {
   const currentDate = new Date();
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth());
   const [isYearPickerVisible, setIsYearPickerVisible] = useState(false);
   const [isMonthPickerVisible, setIsMonthPickerVisible] = useState(false);
-
-  const yearScrollViewRef = useRef(null);
-  const monthScrollViewRef = useRef(null);
+  const [addEventModalVisible, setAddEventModalVisible] = useState(false);
+  const [events, setEvents] = useState<Event[]>([]);
+  const { onGetEvents } = useAuth();
+  const yearScrollViewRef = useRef<ScrollView>(null);
+  const monthScrollViewRef = useRef<ScrollView>(null);
+  const navigation = useNavigation();
 
   const months = [
     'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
@@ -46,6 +64,20 @@ const CalendarPage = () => {
     }
   }, [isMonthPickerVisible]);
 
+  useEffect(() => {
+    
+    fetchAndFilterEvents();
+  }, [selectedYear, selectedMonth]);
+  const fetchAndFilterEvents = async () => {
+    if(!onGetEvents) return;
+    const allEvents = await onGetEvents();
+    const filteredEvents = allEvents.filter((event: { date: string }) => {
+      const eventDate = new Date(event.date);
+      return eventDate.getFullYear() === selectedYear && eventDate.getMonth() === selectedMonth;
+    });
+    setEvents(filteredEvents);
+  };
+
   const handlePrevMonth = () => {
     if (selectedMonth === 0) {
       setSelectedMonth(11);
@@ -64,6 +96,7 @@ const CalendarPage = () => {
     }
   };
 
+
   const renderDays = () => {
     const firstDayOfMonth = new Date(selectedYear, selectedMonth, 1).getDay();
     const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
@@ -73,7 +106,7 @@ const CalendarPage = () => {
 
     for (let i = 0; i < startDay; i++) {
       days.push(
-        <View key={`empty-${i}`} style={styles.dayContainer} />
+        <View key={`empty-${i}`} style={calendarStyles.dayContainer} />
       );
     }
 
@@ -82,20 +115,33 @@ const CalendarPage = () => {
         selectedYear === currentDate.getFullYear() && 
         selectedMonth === currentDate.getMonth() && 
         i === currentDate.getDate();
+        const hasEvent = events.some(event => new Date(event.date).getDate() === i);
       days.push(
-        <View key={i} style={[styles.dayContainer, isToday && styles.todayContainer]}>
-          <Text style={[styles.dayText, isToday && styles.todayText]}>{i}</Text>
-        </View>
+        <TouchableOpacity 
+        key={i} 
+        style={[
+          calendarStyles.dayContainer, 
+          isToday && calendarStyles.todayContainer
+        ]}
+        onPress={() => navigation.navigate('Days', { selectedDate: `${selectedYear}-${selectedMonth+1}-${i}`, events })}
+
+      >
+        <Text style={[
+          calendarStyles.dayText, 
+          isToday && calendarStyles.todayText
+        ]}>{i}</Text>
+        {hasEvent && <View style={calendarStyles.dot} />}
+        </TouchableOpacity>
       );
     }
     return days;
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={calendarStyles.container}>
+      <View style={calendarStyles.header}>
         <TouchableOpacity onPress={() => setIsYearPickerVisible(true)}>
-          <Text style={styles.headerText}>{selectedYear}</Text>
+          <Text style={calendarStyles.headerText}>{selectedYear}</Text>
         </TouchableOpacity>
         <Modal
           visible={isYearPickerVisible}
@@ -104,15 +150,15 @@ const CalendarPage = () => {
           onRequestClose={() => setIsYearPickerVisible(false)}
         >
           <TouchableWithoutFeedback onPress={() => setIsYearPickerVisible(false)}>
-            <View style={styles.modalContainer}>
+            <View style={calendarStyles.modalContainer}>
               <TouchableWithoutFeedback>
-                <ScrollView style={styles.pickerContainer} ref={yearScrollViewRef}>
+                <ScrollView style={calendarStyles.pickerContainer} ref={yearScrollViewRef}>
                   {[...Array(100).keys()].map(i => (
                     <TouchableOpacity 
                       key={i} 
                       style={[
-                        styles.pickerItem,
-                        selectedYear === currentDate.getFullYear() - 50 + i && styles.selectedItem
+                        calendarStyles.pickerItem,
+                        selectedYear === currentDate.getFullYear() - 50 + i && calendarStyles.selectedItem
                       ]}
                       onPress={() => {
                         setSelectedYear(currentDate.getFullYear() - 50 + i);
@@ -120,8 +166,8 @@ const CalendarPage = () => {
                       }}
                     >
                       <Text style={[
-                        styles.pickerText,
-                        selectedYear === currentDate.getFullYear() - 50 + i && styles.selectedItemText
+                        calendarStyles.pickerText,
+                        selectedYear === currentDate.getFullYear() - 50 + i && calendarStyles.selectedItemText
                       ]}>
                         {currentDate.getFullYear() - 50 + i}
                       </Text>
@@ -133,15 +179,15 @@ const CalendarPage = () => {
           </TouchableWithoutFeedback>
         </Modal>
         
-        <View style={styles.monthContainer}>
+        <View style={calendarStyles.monthContainer}>
           <TouchableOpacity onPress={handlePrevMonth}>
-            <Text style={styles.arrowText}>{'<'}</Text>
+            <Text style={calendarStyles.arrowText}>{'<'}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setIsMonthPickerVisible(true)}>
-            <Text style={styles.headerText}>{months[selectedMonth]}</Text>
+            <Text style={calendarStyles.headerText}>{months[selectedMonth]}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleNextMonth}>
-            <Text style={styles.arrowText}>{'>'}</Text>
+            <Text style={calendarStyles.arrowText}>{'>'}</Text>
           </TouchableOpacity>
         </View>
         <Modal
@@ -151,15 +197,15 @@ const CalendarPage = () => {
           onRequestClose={() => setIsMonthPickerVisible(false)}
         >
           <TouchableWithoutFeedback onPress={() => setIsMonthPickerVisible(false)}>
-            <View style={styles.modalContainer}>
+            <View style={calendarStyles.modalContainer}>
               <TouchableWithoutFeedback>
-                <ScrollView style={styles.pickerContainer} ref={monthScrollViewRef}>
+                <ScrollView style={calendarStyles.pickerContainer} ref={monthScrollViewRef}>
                   {months.map((month, index) => (
                     <TouchableOpacity 
                       key={index} 
                       style={[
-                        styles.pickerItem,
-                        selectedMonth === index && styles.selectedItem
+                        calendarStyles.pickerItem,
+                        selectedMonth === index && calendarStyles.selectedItem
                       ]}
                       onPress={() => {
                         setSelectedMonth(index);
@@ -167,8 +213,8 @@ const CalendarPage = () => {
                       }}
                     >
                       <Text style={[
-                        styles.pickerText,
-                        selectedMonth === index && styles.selectedItemText
+                        calendarStyles.pickerText,
+                        selectedMonth === index && calendarStyles.selectedItemText
                       ]}>
                         {month}
                       </Text>
@@ -181,123 +227,25 @@ const CalendarPage = () => {
         </Modal>
       </View>
 
-      <View style={styles.daysOfWeekContainer}>
+      <View style={calendarStyles.daysOfWeekContainer}>
         {daysOfWeek.map((day, index) => (
-          <View key={index} style={styles.dayOfWeekContainer}>
-            <Text style={styles.dayOfWeekText}>{day}</Text>
+          <View key={index} style={calendarStyles.dayOfWeekContainer}>
+            <Text style={calendarStyles.dayOfWeekText}>{day}</Text>
           </View>
         ))}
       </View>
 
-      <View style={styles.calendarContainer}>
+      <View style={calendarStyles.calendarContainer}>
         {renderDays()}
       </View>
+      <AddEventModal visible={addEventModalVisible} onClose={()=> setAddEventModalVisible(false)} onEventAdded={() => fetchAndFilterEvents} />
       <FloatingAction
       color='#478CCF'
     actions={actions}
-    onPressItem={name => {
-      console.log(`selected button: ${name}`);
-    }}
+    onPressItem={() => setAddEventModalVisible(true)}
   />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-    padding: 20,
-  },
-  header: {
-    marginTop:20,
-    marginBottom: 20,
-    alignItems: 'center',
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#03346E',
-  },
-  monthContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  arrowText: {
-    fontSize: 26,
-    color: '#03346E',
-    marginHorizontal: 70,
-  },
-  daysOfWeekContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  dayOfWeekContainer: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 5,
-  },
-  dayOfWeekText: {
-    fontSize: 18,
-    color: '#03346E',
-    fontWeight: 'bold',
-  },
-  calendarContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-  },
-  dayContainer: {
-    width: 40,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 5,
-    borderRadius: 20,
-  },
-  todayContainer: {
-    borderColor: '#03346E',
-    borderWidth: 2,
-  },
-  dayText: {
-    fontSize: 18,
-    color: '#03346E',
-  },
-  todayText: {
-    color: '#478CCF',
-    fontWeight: 'bold',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  pickerContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    width: '80%',
-    maxHeight: '60%',
-  },
-  pickerItem: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  pickerText: {
-    fontSize: 20,
-    color: '#03346E',
-  },
-  selectedItem: {
-    backgroundColor: '#E8F1FA',
-  },
-  selectedItemText: {
-    fontWeight: 'bold',
-    color: '#478CCF',
-  },
-});
 
 export default CalendarPage;

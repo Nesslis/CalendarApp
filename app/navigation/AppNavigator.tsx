@@ -17,6 +17,7 @@ import MeetingsPage from '../screens/Meetings/meetings';
 import NotesPage from '../screens/Notes/notes';
 import SettingsPage from '../screens/Settings/settings';
 import { useAuth } from '../context/AuthContext';
+import DayEventsPage from '../screens/Calendar/dayEvents';
 
 // Authentication context
 const AuthContext = createContext({ isLoggedIn: false, login: () => {}, logout: () => {} });
@@ -98,6 +99,7 @@ export const AppNavigator = () => {
       {authState?.authenticated ? (
             <>
             <Stack.Screen name='Home' component={MainTabNavigator} options={hideHeader} />
+            <Stack.Screen name='Days' component={DayEventsPage} options={hideHeader} />
             </>
           ) : (
             <>
