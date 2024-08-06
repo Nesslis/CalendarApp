@@ -1,7 +1,12 @@
 import { View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import React from 'react';
+import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
-export default function WelcomePage({ navigation }: { navigation: any }) {
+type WelcomePageProps = {
+  navigation: NavigationProp<ParamListBase>;
+};
+
+export default function WelcomePage({ navigation }: WelcomePageProps) {
   return (
     <View style={styles.container}>
       <View style={styles.topRightShape} />

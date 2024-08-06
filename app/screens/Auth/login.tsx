@@ -8,10 +8,16 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext'; 
-import Animated, { Easing, useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import { useFocusEffect } from '@react-navigation/native';
+// import Animated, { Easing, useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+// import { useFocusEffect } from '@react-navigation/native';
 
-export default function LoginPage({ navigation }: { navigation: any }) {
+import { NavigationProp, ParamListBase } from '@react-navigation/native';
+
+type LoginPageProps = {
+  navigation: NavigationProp<ParamListBase>;
+};
+
+export default function LoginPage({ navigation }: LoginPageProps) {
   const { onLogin } = useAuth();
   const [email, setEmail] = useState('basicuser@example.com');
   const [password, setPassword] = useState('S1+tring');
@@ -31,36 +37,36 @@ export default function LoginPage({ navigation }: { navigation: any }) {
     setShowPassword(!showPassword);
   };
 
-  const topRightX = useSharedValue(0);
-  const topRightY = useSharedValue(0);
-  const bottomLeftX = useSharedValue(0);
-  const bottomLeftY = useSharedValue(0);
+  // const topRightX = useSharedValue(0);
+  // const topRightY = useSharedValue(0);
+  // const bottomLeftX = useSharedValue(0);
+  // const bottomLeftY = useSharedValue(0);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      // Animasyon başladığında
-      topRightX.value = withTiming(-100, { duration: 1000, easing: Easing.inOut(Easing.ease) });
-      topRightY.value = withTiming(-100, { duration: 1000, easing: Easing.inOut(Easing.ease) });
-      bottomLeftX.value = withTiming(100, { duration: 1000, easing: Easing.inOut(Easing.ease) });
-      bottomLeftY.value = withTiming(100, { duration: 1000, easing: Easing.inOut(Easing.ease) });
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     // Animasyon başladığında
+  //     topRightX.value = withTiming(-100, { duration: 1000, easing: Easing.inOut(Easing.ease) });
+  //     topRightY.value = withTiming(-100, { duration: 1000, easing: Easing.inOut(Easing.ease) });
+  //     bottomLeftX.value = withTiming(100, { duration: 1000, easing: Easing.inOut(Easing.ease) });
+  //     bottomLeftY.value = withTiming(100, { duration: 1000, easing: Easing.inOut(Easing.ease) });
 
-      return () => {
-        // Animasyon sıfırlanırken
-        topRightX.value = 0;
-        topRightY.value = 0;
-        bottomLeftX.value = 0;
-        bottomLeftY.value = 0;
-      };
-    }, [])
-  );
+  //     return () => {
+  //       // Animasyon sıfırlanırken
+  //       topRightX.value = 0;
+  //       topRightY.value = 0;
+  //       bottomLeftX.value = 0;
+  //       bottomLeftY.value = 0;
+  //     };
+  //   }, [])
+  // );
 
-  const topRightStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: topRightX.value }, { translateY: topRightY.value }],
-  }));
+  // const topRightStyle = useAnimatedStyle(() => ({
+  //   transform: [{ translateX: topRightX.value }, { translateY: topRightY.value }],
+  // }));
 
-  const bottomLeftStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: bottomLeftX.value }, { translateY: bottomLeftY.value }],
-  }));
+  // const bottomLeftStyle = useAnimatedStyle(() => ({
+  //   transform: [{ translateX: bottomLeftX.value }, { translateY: bottomLeftY.value }],
+  // }));
 
   return (
     <View style={styles.container}>

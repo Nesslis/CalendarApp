@@ -58,9 +58,10 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
     setEditedEvent({ ...editedEvent, [field]: value });
   };
   const handleDateChange = (event: DateTimePickerEvent, selectedDate: Date | undefined) => {
-    const currentDate = selectedDate || new Date();
-    setShowDatePicker(false);
-    handleChange('date', currentDate.toString());
+    if (selectedDate) {
+      setShowDatePicker(false);
+      handleChange('date', selectedDate.toISOString());
+    }
   };
   const handleDelete = async() => {
     if(!event || !onDeleteEvent) return;
@@ -222,7 +223,7 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
             {isEditMode ? (
               <TextInput
                 style={styles.modalInput}
-                value={formatTime(editedEvent?.time )|| ''}
+                value={editedEvent?.time || ''}
                 onChangeText={(text) => handleChange('time', formatTime(text))}
               />
             ) : (

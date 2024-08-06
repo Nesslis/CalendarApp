@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, Button, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, Button } from 'react-native';
 import DatePicker from 'react-native-neat-date-picker';
 import { Picker } from '@react-native-picker/picker';
 
@@ -36,7 +36,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
   const [showStartDatePicker, setShowStartDatePicker] = useState<boolean>(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState<boolean>(false);
 
-  const screenHeight = Dimensions.get('window').height;
 
   return (
     <Modal

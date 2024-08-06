@@ -17,9 +17,22 @@ interface AddEventModalProps {
   defaultCategoryId?: number;
   onEventAdded ?: () => void;
 }
+interface Event {
+  event_id: number;
+  user_id: number;
+  category_id: number;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  participant: string;
+  created_at: string;
+  updated_at: string;
+  content: string | null;
+}
 
 export default function AddEventModal({ visible, onClose, defaultCategoryId, onEventAdded }: AddEventModalProps) {
-  const { onGetEventCategories, onAddEvent } = useAuth();
+  const { onGetEventCategories, onAddEvent, onSearchEvents, authState } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(defaultCategoryId || null);
   const [title, setTitle] = useState('');
@@ -29,6 +42,7 @@ export default function AddEventModal({ visible, onClose, defaultCategoryId, onE
   const [location, setLocation] = useState('');
   const [participant, setParticipant] = useState('');
   const [content, setContent] = useState('');
+  const [existingEvents, setExistingEvents] = useState([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -44,12 +58,35 @@ export default function AddEventModal({ visible, onClose, defaultCategoryId, onE
       }
     };
 
+    const fetchEvents = async () => {
+      try {
+        if (!onSearchEvents) return;
+        const eventsData = await onSearchEvents(null, '', ''); // Get all events for the user
+        setExistingEvents(eventsData);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
     fetchCategories();
-  }, [onGetEventCategories]);
-
+    fetchEvents();
+  }, [onGetEventCategories, onSearchEvents, authState]);
+  
   const handleAddEvent = async () => {
     if (!selectedCategory || !title || !date || !time) {
       Alert.alert('Lütfen tüm gerekli alanları doldurun.');
+      return;
+    }
+
+    const newEventDateTime = moment(`${moment(date).format('YYYY-MM-DD')}T${time}`, moment.ISO_8601);
+    const conflict = existingEvents.some((event: Event) => {
+      const eventDate = moment(event.date).format('YYYY-MM-DD');
+    const eventTime = moment(event.time, 'HH:mm:ss').format('HH:mm');
+      const eventDateTime = moment(`${eventDate}T${eventTime}` , moment.ISO_8601);
+      return eventDateTime.isSame(newEventDateTime);
+    });
+
+    if (conflict) {
+      Alert.alert('Bu tarih ve saatte zaten bir etkinlik var.');
       return;
     }
 
@@ -136,7 +173,7 @@ export default function AddEventModal({ visible, onClose, defaultCategoryId, onE
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Ionicons name="close" size={28} color="#81A263" />
           </TouchableOpacity>
-          <View style={styles.inputRow}>
+          <View style={styles.picker}>
             <Picker
               selectedValue={selectedCategory}
               onValueChange={(itemValue) => setSelectedCategory(itemValue)}
@@ -214,7 +251,13 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
     width: '100%',
-    borderWidth: 2,
+    borderWidth: 1,
+    borderColor: '#7FA1C3',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 15,
+    marginBottom: 17,
   },
   datePickerButton: {
     padding: 10,
