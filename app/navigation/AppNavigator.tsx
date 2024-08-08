@@ -25,6 +25,19 @@ const AuthContext = createContext({ isLoggedIn: false, login: () => {}, logout: 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+const CalendarStackNavigator = () => {
+  const hideHeader = () => ({
+    headerShown: false,
+  });
+
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Takvim" component={CalendarPage} options={hideHeader} />
+      <Stack.Screen name="Days" component={DayEventsPage} options={hideHeader} />
+    </Stack.Navigator>
+  );
+};
+
 const MainTabNavigator = () => {
   const hideHeader = () => ({
     headerShown: false,
@@ -69,7 +82,7 @@ const MainTabNavigator = () => {
       })}
     >
       <Tab.Screen name="AnaSayfa" component={HomePage} options={hideHeader} />
-      <Tab.Screen name="Takvim" component={CalendarPage} options={hideHeader}/>
+      <Tab.Screen name="Takvim" component={CalendarStackNavigator} options={hideHeader}/>
       <Tab.Screen name="Toplantılar" component={MeetingsPage} options={hideHeader}/>
       <Tab.Screen name="Etkinlikler" component={EventsPage} options={hideHeader}/>
       <Tab.Screen name="Notlarım" component={NotesPage} options={hideHeader}/>
