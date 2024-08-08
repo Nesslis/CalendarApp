@@ -16,6 +16,7 @@ interface AddEventModalProps {
   onClose: () => void;
   defaultCategoryId?: number;
   onEventAdded ?: () => void;
+  selectedDate?: string;
 }
 interface Event {
   event_id: number;
@@ -31,12 +32,12 @@ interface Event {
   content: string | null;
 }
 
-export default function AddEventModal({ visible, onClose, defaultCategoryId, onEventAdded }: AddEventModalProps) {
+export default function AddEventModal({ visible, onClose, defaultCategoryId, onEventAdded, selectedDate }: AddEventModalProps) {
   const { onGetEventCategories, onAddEvent, onSearchEvents, authState } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(defaultCategoryId || null);
   const [title, setTitle] = useState('');
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(selectedDate ? new Date(selectedDate) : new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [time, setTime] = useState('');
   const [location, setLocation] = useState('');
@@ -80,8 +81,8 @@ export default function AddEventModal({ visible, onClose, defaultCategoryId, onE
     const newEventDateTime = moment(`${moment(date).format('YYYY-MM-DD')}T${time}`, moment.ISO_8601);
     const conflict = existingEvents.some((event: Event) => {
       const eventDate = moment(event.date).format('YYYY-MM-DD');
-    const eventTime = moment(event.time, 'HH:mm:ss').format('HH:mm');
-      const eventDateTime = moment(`${eventDate}T${eventTime}` , moment.ISO_8601);
+      const eventTime = moment(event.time, 'HH:mm:ss').format('HH:mm');
+      const eventDateTime = moment(`${eventDate}T${eventTime}`, moment.ISO_8601);
       return eventDateTime.isSame(newEventDateTime);
     });
 
@@ -202,7 +203,7 @@ export default function AddEventModal({ visible, onClose, defaultCategoryId, onE
               display="default"
               onChange={(event, selectedDate) => {
                 setShowDatePicker(false);
-                if (selectedDate) setDate(selectedDate);
+                if (selectedDate) setDate(selectedDate ?? new Date());
               }}
             />
           )}
