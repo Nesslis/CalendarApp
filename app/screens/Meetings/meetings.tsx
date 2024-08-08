@@ -1,4 +1,4 @@
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Modal, TextInput } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FloatingAction } from "react-native-floating-action";
@@ -41,7 +41,18 @@ export default function MeetingsPage() {
   const [showEndDatePicker, setShowEndDatePicker] = useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState('');
 
+  const handleSearchTextChange = (text: string) => {
+    setSearchText(text);
+    if (text.trim() === '') {
+      fetchEvents();
+    } else {
+      fetchEvents();
+    }
+  };
+  
 
   const fetchEvents = async () => {
     if (authState?.authenticated) {
@@ -49,7 +60,7 @@ export default function MeetingsPage() {
         if (!onSearchEvents) return;
         const startDateString = startDate ? startDate.toISOString().split('T')[0] : '';
         const endDateString = endDate ? endDate.toISOString().split('T')[0] : '';
-        const eventsData = await onSearchEvents(1, startDateString, endDateString);
+        const eventsData = await onSearchEvents(1, startDateString, endDateString, searchText);
         const sortedMeetings = eventsData.sort((a: Event, b: Event) => {
           const dateA = new Date(a.date).getTime();
           const dateB = new Date(b.date).getTime();
@@ -91,12 +102,15 @@ export default function MeetingsPage() {
   const handleFetchEvents = () => {
     setLoading(true);
     fetchEvents();
+    setFilterModalVisible(false);
   };
 
   const handleClearFilters = () => {
     setStartDate(undefined);
     setEndDate(undefined);
+    setSearchText("");
     handleFetchEvents();
+    setFilterModalVisible(false);
   };
 
   const handleEventPress = (event: Event) => {
@@ -124,7 +138,7 @@ export default function MeetingsPage() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.dateContainer}>
+      {/* <View style={styles.dateContainer}>
         <TouchableOpacity style={styles.dateButton} onPress={() => setShowStartDatePicker(true)}>
           <Text style={styles.dateButtonText}>{startDate ? formatDate(startDate.toISOString()) : 'Başlangıç Tarihi'}</Text>
         </TouchableOpacity>
@@ -159,7 +173,75 @@ export default function MeetingsPage() {
         <TouchableOpacity style={styles.applyButton} onPress={handleFetchEvents}>
           <Icon name="check" size={20} color="#fff" />
         </TouchableOpacity>
+      </View> */}
+      <TouchableOpacity style={styles.filterIcon} onPress={() => setFilterModalVisible(true)}>
+    <Icon name="filter" size={25} color="#03346E" />
+  </TouchableOpacity>
+  <Modal
+  transparent={true}
+  animationType="slide"
+  visible={filterModalVisible}
+  onRequestClose={() => setFilterModalVisible(false)}
+>
+  <View style={styles.modalContainer2}>
+    <View style={styles.modalContent2}>
+      <Text style={styles.modalTitle}>Filtrele</Text>
+      <View style={styles.modalSeparator} />
+      <TextInput
+        style={styles.textInput}
+        placeholder="Ara"
+        value={searchText}
+        onChangeText={handleSearchTextChange}
+      />
+      <View style={styles.modalRow2}>
+        <Text style={styles.modalLabel}>Başlangıç Tarihi:</Text>
+        <TouchableOpacity style={styles.datePickerButton} onPress={() => setShowStartDatePicker(true)}>
+          <Text style={styles.datePickerButtonText}>{startDate ? startDate.toLocaleDateString('tr-TR') : 'Seç'}</Text>
+        </TouchableOpacity>
+        {showStartDatePicker && (
+          <DateTimePicker
+            value={startDate || new Date()}
+            mode="date"
+            display="default"
+            onChange={(event, date) => {
+              setShowStartDatePicker(false);
+              if (date) setStartDate(date);
+            }}
+          />
+        )}
       </View>
+      <View style={styles.modalRow2}>
+        <Text style={styles.modalLabel}>Bitiş Tarihi:</Text>
+        <TouchableOpacity style={styles.datePickerButton} onPress={() => setShowEndDatePicker(true)}>
+          <Text style={styles.datePickerButtonText}>{endDate ? endDate.toLocaleDateString('tr-TR') : 'Seç'}</Text>
+        </TouchableOpacity>
+        {showEndDatePicker && (
+          <DateTimePicker
+            value={endDate || new Date()}
+            mode="date"
+            display="default"
+            onChange={(event, date) => {
+              setShowEndDatePicker(false);
+              if (date) setEndDate(date);
+            }}
+          />
+        )}
+      </View>
+      <View style={styles.modalButtonRow}>
+        <TouchableOpacity style={styles.closeButton2} onPress={() => setFilterModalVisible(false)}>
+          <Text style={styles.closeButtonText2}>Kapat</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.clearButton} onPress={handleClearFilters}>
+          <Text style={styles.clearButtonText}>Temizle</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.applyButton2} onPress={handleFetchEvents}>
+          <Text style={styles.applyButtonText}>Uygula</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</Modal>
+
       <Text style={styles.welcomeText}>Toplantılarım</Text>
       <View style={styles.eventsBox}>
         <FlatList
