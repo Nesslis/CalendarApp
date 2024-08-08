@@ -4,7 +4,15 @@ import { FloatingAction } from "react-native-floating-action";
 import { useAuth } from '../../context/AuthContext';
 import AddEventModal from '../../components/addEventModal';
 import calendarStyles from './calendarStyles';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+type RootStackParamList = {
+  Calendar: undefined;
+  Days: { selectedDate: string; events: Event[] };
+};
+
+
 const actions = [
   {
     text: "Etkinlik Ekle",
@@ -36,7 +44,7 @@ const CalendarPage = () => {
   const { onGetEvents } = useAuth();
   const yearScrollViewRef = useRef<ScrollView>(null);
   const monthScrollViewRef = useRef<ScrollView>(null);
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const months = [
     'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
@@ -123,8 +131,7 @@ const CalendarPage = () => {
           calendarStyles.dayContainer, 
           isToday && calendarStyles.todayContainer
         ]}
-        onPress={() => navigation.navigate('Days', { selectedDate: `${selectedYear}-${selectedMonth+1}-${i}`, events })}
-
+        onPress={() => navigation.navigate('Days', { selectedDate: `${selectedYear}-${selectedMonth + 1}-${i}`, events })}
       >
         <Text style={[
           calendarStyles.dayText, 
@@ -181,13 +188,13 @@ const CalendarPage = () => {
         
         <View style={calendarStyles.monthContainer}>
           <TouchableOpacity onPress={handlePrevMonth}>
-            <Text style={calendarStyles.arrowText}>{'<'}</Text>
+            <Ionicons style={calendarStyles.arrowText} name='arrow-back' size={28} color='#81A263 ' />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setIsMonthPickerVisible(true)}>
             <Text style={calendarStyles.headerText}>{months[selectedMonth]}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleNextMonth}>
-            <Text style={calendarStyles.arrowText}>{'>'}</Text>
+          <Ionicons style={calendarStyles.arrowText} name='arrow-forward' size={28} color='#81A263 ' />
           </TouchableOpacity>
         </View>
         <Modal
