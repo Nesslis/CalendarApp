@@ -10,9 +10,9 @@ export default function SettingsPage() {
     try {
       if(!onLogout) return;
       await onLogout();
-      Alert.alert('Logout', 'You have been logged out successfully.');
+      Alert.alert('Çıkış', 'Başarı ile çıkış yapıldı.');
     } catch (error) {
-      Alert.alert('Error', 'Failed to logout.');
+      Alert.alert('Hata', 'Çıkış sırasında bir hata oluştu.');
     }
   };
 
