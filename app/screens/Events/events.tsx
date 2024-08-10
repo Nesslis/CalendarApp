@@ -148,6 +148,7 @@ export default function EventsPage() {
         <Icon name="filter" size={24} color="#000" />
       </TouchableOpacity>
       <Text style={styles.welcomeText}>Etkinliklerim</Text>
+      <View style={styles.eventContainer}>
       <View style={styles.eventsBox}>
         <FlatList
           data={events}
@@ -161,6 +162,7 @@ export default function EventsPage() {
             </View>
           )}
         />
+      </View>
       </View>
       {selectedEvent && (
       <EventDetail event={selectedEvent} onClose={() => setSelectedEvent(null)} />

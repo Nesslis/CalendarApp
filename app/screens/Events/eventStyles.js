@@ -12,6 +12,11 @@ export default StyleSheet.create({
     right: 30,
     zIndex: 1,
   },
+  eventContainer: {
+          flex: 1,
+          justifyContent: 'center',  // Dikeyde ortalar
+          alignItems: 'center',       // Yatayda ortalar
+        },
   welcomeText: {
     fontSize: 24,
     fontWeight: 'bold',
