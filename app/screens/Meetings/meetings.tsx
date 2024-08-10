@@ -243,6 +243,7 @@ export default function MeetingsPage() {
 </Modal>
 
       <Text style={styles.welcomeText}>Toplantılarım</Text>
+      <View style={styles.eventContainer}>
       <View style={styles.eventsBox}>
         <FlatList
           data={events}
@@ -256,6 +257,7 @@ export default function MeetingsPage() {
             </View>
           )}
         />
+      </View>
       </View>
       <EventDetail event={selectedEvent} onClose={() => setSelectedEvent(null)} />
         <AddEventModal visible={modalVisible} onClose={()=> setModalVisible(false)} defaultCategoryId={1} onEventAdded={() => fetchEvents} />

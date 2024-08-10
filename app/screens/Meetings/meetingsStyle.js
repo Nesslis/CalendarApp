@@ -138,6 +138,11 @@ export const styles = StyleSheet.create({
       width: 350,
       height: 370,
     },
+    eventContainer: {
+        flex: 1,
+        justifyContent: 'center',  // Dikeyde ortalar
+        alignItems: 'center',       // Yatayda ortalar
+      },
     textInput: {
       borderColor: '#03346E',
       borderWidth: 1,
