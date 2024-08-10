@@ -29,6 +29,7 @@ export default StyleSheet.create({
       daysOfWeekContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
+        alignSelf:'center',
       },
       dayOfWeekContainer: {
         width: 40,
@@ -43,9 +44,12 @@ export default StyleSheet.create({
         fontWeight: 'bold',
       },
       calendarContainer: {
+        width: 350,
+        display: 'flex',
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
+        alignSelf:'center',
       },
       dayContainer: {
         width: 40,
