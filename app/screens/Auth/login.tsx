@@ -90,7 +90,7 @@ export default function LoginPage({ navigation }: LoginPageProps) {
           />
           <TextInput
             style={styles.input}
-            placeholder='Email :'
+            placeholder='Email'
             placeholderTextColor='#fff'
             value={email}
             onChangeText={setEmail}
@@ -105,7 +105,7 @@ export default function LoginPage({ navigation }: LoginPageProps) {
           />
           <TextInput
             style={styles.input}
-            placeholder='Şifre :'
+            placeholder='Şifre'
             placeholderTextColor='#fff'
             value={password}
             onChangeText={setPassword}

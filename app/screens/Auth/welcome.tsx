@@ -13,21 +13,22 @@ export default function WelcomePage({ navigation }: WelcomePageProps) {
       <View style={styles.bottomLeftShape} />
       <View style={styles.bottomLeftShape2} />
       <View style={styles.mainSection}>
-        <Text style={styles.title}>Lets Get Started</Text>
-        <Text style={styles.subtitle}>Manage meetings with ease</Text>
+        <Text style={styles.title}>Başlayalım</Text>
+        <Text style={styles.subtitle}>Etkinliklerinizi kolaylıkla yönetin</Text>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate('Login')}
-          >
-            <Text style={styles.buttonText}>Giriş Yap</Text>
-          </TouchableOpacity>
           <TouchableOpacity
             style={[styles.outlineButton]}
             onPress={() => navigation.navigate('Register')}
           >
             <Text style={styles.outlineButtonText}>Kayıt ol</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('Login')}
+          >
+            <Text style={styles.buttonText}>Giriş Yap</Text>
+          </TouchableOpacity>
+          
         </View>
       </View>
     </View>
@@ -95,7 +96,6 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 10,
-    marginRight: 10,
   },
   buttonText: {
     color: '#fff',
@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 10,
+    marginRight: 10,
   },
   outlineButtonText: {
     color: '#03346E',

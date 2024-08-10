@@ -90,19 +90,19 @@ export default function RegisterPage({ navigation }: RegisterPageProps) {
         <Text style={styles.subtitle}>Hesap oluşturun</Text>
         <View style={styles.inputContainer}>
           <Ionicons name="person-outline" size={24} color="#03346E" style={styles.icon} />
-          <TextInput style={styles.input} placeholder="İsim       :" placeholderTextColor="#03346E" value={name} onChangeText={setName} />
+          <TextInput style={styles.input} placeholder="İsim" placeholderTextColor="#03346E" value={name} onChangeText={setName} />
         </View>
         <View style={styles.inputContainer}>
           <Ionicons name="person-outline" size={24} color="#03346E" style={styles.icon} />
-          <TextInput style={styles.input} placeholder="Soyisim :" placeholderTextColor="#03346E" value={lastName} onChangeText={setLastName} />
+          <TextInput style={styles.input} placeholder="Soyisim" placeholderTextColor="#03346E" value={lastName} onChangeText={setLastName} />
         </View>
         <View style={styles.inputContainer}>
           <Ionicons name="mail-outline" size={24} color="#03346E" style={styles.icon} />
-          <TextInput style={styles.input} placeholder="Email     :" placeholderTextColor="#03346E" value={email} onChangeText={setEmail} />
+          <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#03346E" value={email} onChangeText={setEmail} />
         </View>
         <View style={styles.inputContainer}>
           <Ionicons name="lock-closed-outline" size={24} color="#03346E" style={styles.icon} />
-          <TextInput style={styles.input} placeholder="Şifre       :" placeholderTextColor="#03346E" value={password} onChangeText={setPassword} secureTextEntry={!showPassword} />
+          <TextInput style={styles.input} placeholder="Şifre" placeholderTextColor="#03346E" value={password} onChangeText={setPassword} secureTextEntry={!showPassword} />
           <TouchableOpacity onPress={togglePasswordVisibility}>
             <Ionicons
               name={showPassword ? 'eye-off-outline' : 'eye-outline'}
