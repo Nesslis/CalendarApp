@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext'; 
+import { useAuth } from '../../context/AuthContext';
 // import Animated, { Easing, useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 // import { useFocusEffect } from '@react-navigation/native';
 
@@ -26,7 +26,7 @@ export default function LoginPage({ navigation }: LoginPageProps) {
   const handleLogin = async () => {
     const result = await onLogin?.(email, password);
     if (result?.error) {
-      console.log(result.msg); 
+      console.log(result.msg);
     } else {
       console.log('Login Successful');
       navigation.navigate('Home');
@@ -70,15 +70,15 @@ export default function LoginPage({ navigation }: LoginPageProps) {
 
   return (
     <View style={styles.container}>
-      <View style={ styles.bottomLeftShape}/>
-      <View style={ styles.bottomLeftShape2}/>
-      <View style={ styles.topRightShape}/>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Welcome')}
-          style={styles.backButton}
-        >
-          <Ionicons name='arrow-back' size={28} color='#81A263 ' />
-        </TouchableOpacity>
+      <View style={styles.bottomLeftShape} />
+      <View style={styles.bottomLeftShape2} />
+      <View style={styles.topRightShape} />
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Welcome')}
+        style={styles.backButton}
+      >
+        <Ionicons name='arrow-back' size={28} color='#81A263 ' />
+      </TouchableOpacity>
       <View style={styles.mainSection}>
         <Text style={styles.subtitle}>Hesabınıza giriş yapın</Text>
         <View style={styles.inputContainer}>
@@ -91,7 +91,7 @@ export default function LoginPage({ navigation }: LoginPageProps) {
           <TextInput
             style={styles.input}
             placeholder='Email'
-            placeholderTextColor='#fff'
+            placeholderTextColor='#03346E'
             value={email}
             onChangeText={setEmail}
           />
@@ -106,7 +106,7 @@ export default function LoginPage({ navigation }: LoginPageProps) {
           <TextInput
             style={styles.input}
             placeholder='Şifre'
-            placeholderTextColor='#fff'
+            placeholderTextColor='#03346E'
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
@@ -115,7 +115,7 @@ export default function LoginPage({ navigation }: LoginPageProps) {
             <Ionicons
               name={showPassword ? 'eye-off-outline' : 'eye-outline'}
               size={24}
-              color="#03346E"
+              color='#03346E'
             />
           </TouchableOpacity>
         </View>
@@ -220,6 +220,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginLeft: 10,
     marginTop: 10,
-    alignSelf:'flex-start',
+    alignSelf: 'flex-start',
   },
 });

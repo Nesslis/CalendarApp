@@ -247,9 +247,9 @@ export default function EventsPage() {
       <AddEventModal visible={addEventModalVisible} onClose={()=> setAddEventModalVisible(false)} onEventAdded={() => fetchEvents} />
       <FloatingAction
       color='#478CCF'
-    actions={actions}
-    onPressItem={() => setAddEventModalVisible(true)}
-  />
+      actions={actions}
+      onPressItem={() => setAddEventModalVisible(true)}
+      />
     </View>
   );
 }
