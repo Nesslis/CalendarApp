@@ -4,14 +4,12 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
 
 interface Note {
-    note_id: number;
-    event_id?: number | null;
-    user_id: number;
-    title: string;
-    content: string;
-    created_at: string;
-    updated_at: string;
-  }
+  note_id: number;
+  event_id?: number;
+  user_id: number;
+  title: string;
+  content: string;
+}
 
 interface NoteDetailsModalProps {
   visible: boolean;

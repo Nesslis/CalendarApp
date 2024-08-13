@@ -3,15 +3,14 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native
 import { useAuth } from '../../context/AuthContext';
 import NoteDetailsModal from '../../components/noteDetail';
 import AddNoteModal from '../../components/addNote';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface Note {
   note_id: number;
-  event_id?: number | null;
+  event_id?: number;
   user_id: number;
   title: string;
   content: string;
-  created_at: string;
-  updated_at: string;
 }
 
 export default function NotesPage() {
@@ -22,15 +21,26 @@ export default function NotesPage() {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [addNoteModalVisible, setAddNoteModalVisible] = useState(false);
+  const [selectedNoteType, setSelectedNoteType] = useState<'personal' | 'meeting'>('personal');
 
   useEffect(() => {
     fetchNotes();
   }, []);
+  
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchNotes();
+    }, [selectedTab])
+  );
 
   useEffect(() => {
     fetchNotes();
   }, [selectedTab]);
 
+  const openAddNoteModal = (noteType: 'personal' | 'meeting') => {
+    setSelectedNoteType(noteType);
+    setAddNoteModalVisible(true);
+  };
   const openNoteModal = (note: Note) => {
     setSelectedNote(note);
     setModalVisible(true);
@@ -71,8 +81,8 @@ export default function NotesPage() {
         keyExtractor={(item) => item.note_id.toString()}
         numColumns={2}
       />
-      <AddNoteModal visible={addNoteModalVisible} onClose={()=> setAddNoteModalVisible(false)} onNoteAdded={() => fetchNotes}  />
-      <TouchableOpacity style={styles.addButton} onPress={() => setAddNoteModalVisible(true)}>
+      <AddNoteModal visible={addNoteModalVisible} onClose={()=> setAddNoteModalVisible(false)} onNoteAdded={() => fetchNotes} noteType={selectedTab} />
+      <TouchableOpacity style={styles.addButton} onPress={() => openAddNoteModal(selectedTab)}>
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
       <NoteDetailsModal
