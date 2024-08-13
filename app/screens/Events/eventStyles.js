@@ -14,8 +14,7 @@ export default StyleSheet.create({
   },
   eventContainer: {
           flex: 1,
-          justifyContent: 'center',  // Dikeyde ortalar
-          alignItems: 'center',       // Yatayda ortalar
+          alignItems: 'center', // Yatayda ortalar
         },
   welcomeText: {
     fontSize: 24,
@@ -31,7 +30,7 @@ export default StyleSheet.create({
     padding: 20,
     marginTop: 30,
     width: 350,
-    height: 450,
+    height: 400,
   },
   headerRow: {
     flexDirection: 'row',

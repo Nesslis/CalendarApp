@@ -136,11 +136,10 @@ export const styles = StyleSheet.create({
       borderRadius: 10,
       padding: 20,
       width: 350,
-      height: 370,
+      height: 400,
     },
     eventContainer: {
         flex: 1,
-        justifyContent: 'center',  // Dikeyde ortalar
         alignItems: 'center',       // Yatayda ortalar
       },
     textInput: {

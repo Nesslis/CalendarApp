@@ -1,5 +1,4 @@
 import React, { createContext, useCallback, useContext} from 'react';
-
 import { useTranslation } from 'react-i18next';
 
 interface AppLocaleContext {
