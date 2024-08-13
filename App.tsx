@@ -1,5 +1,5 @@
-import React, { Suspense, useEffect } from 'react';
-import { ActivityIndicator, LogBox } from 'react-native';
+import React, { Suspense} from 'react';
+import { ActivityIndicator} from 'react-native';
 import { AppNavigator } from './app/navigation/AppNavigator';
 import AppProvider from './app/hooks';
 import { StatusBar } from 'native-base';
@@ -16,10 +16,6 @@ if (!global.atob) {
 }
 
 export default function App() {
-  useEffect(() => {
-    LogBox.ignoreLogs(['In React 18, SSRProvider is not necessary and is a noop. You can remove it from your app.']);
-  }, []);
-
   return (
     <Suspense fallback={<ActivityIndicator size='large' color='#00ff00' />}>
       <StatusBar barStyle='dark-content' />

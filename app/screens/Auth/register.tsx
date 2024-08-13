@@ -2,8 +2,6 @@ import { View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-nativ
 import React, { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons'; 
 import { useAuth } from '../../context/AuthContext';
-// import Animated, { Easing, useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-// import { useFocusEffect } from '@react-navigation/native';
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
 type RegisterPageProps = {
@@ -38,46 +36,6 @@ export default function RegisterPage({ navigation }: RegisterPageProps) {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-
-  // const topRightX = useSharedValue(0);
-  // const topRightY = useSharedValue(0);
-  // const bottomLeft1X = useSharedValue(0);
-  // const bottomLeft1Y = useSharedValue(0);
-  // const bottomLeft2X = useSharedValue(0);
-  // const bottomLeft2Y = useSharedValue(0);
-
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     topRightX.value = withTiming(-250, { duration: 1000, easing: Easing.ease});
-  //     topRightY.value = withTiming(-100, { duration: 1000, easing: Easing.ease });
-  //     bottomLeft1X.value = withTiming(-100, { duration: 1000, easing: Easing.ease });
-  //     bottomLeft1Y.value = withTiming(-750, { duration: 1000, easing: Easing.ease });
-  //     bottomLeft2X.value = withTiming(100, { duration: 1000, easing: Easing.ease });
-  //     bottomLeft2Y.value = withTiming(100, { duration: 1000, easing: Easing.ease });
-
-  //     return () => {
-  //       topRightX.value = 0;
-  //       topRightY.value = 0;
-  //       bottomLeft1X.value = 0;
-  //       bottomLeft1Y.value = 0;
-  //       bottomLeft2X.value = 0;
-  //       bottomLeft2Y.value = 0;
-  //     };
-  //   }, [])
-  // );
-
-  // const topRightStyle = useAnimatedStyle(() => ({
-  //   transform: [{ translateX: topRightX.value }, { translateY: topRightY.value }],
-  // }));
-
-  // const bottomLeft1Style = useAnimatedStyle(() => ({
-  //   transform: [{ translateX: bottomLeft1X.value }, { translateY: bottomLeft1Y.value }],
-  // }));
-
-  // const bottomLeft2Style = useAnimatedStyle(() => ({
-  //   transform: [{ translateX: bottomLeft2X.value }, { translateY: bottomLeft2Y.value }],
-  // }));
-
   return (
     <View style={styles.container}>
       <View style={ styles.bottomLeftShape}/>
@@ -216,7 +174,8 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   successMessage: {
-    color: 'white',
+    color: '#03346E',
+    fontWeight: 'bold',
     fontSize: 16,
     marginTop: 20,
   },
