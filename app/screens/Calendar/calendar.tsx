@@ -6,6 +6,7 @@ import AddEventModal from '../../components/addEventModal';
 import calendarStyles from './calendarStyles';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useFocusEffect } from '@react-navigation/native';
 
 type RootStackParamList = {
   Calendar: undefined;
@@ -85,6 +86,12 @@ const CalendarPage = () => {
     });
     setEvents(filteredEvents);
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchAndFilterEvents();
+    }, [selectedYear, selectedMonth])
+  );
 
   const handlePrevMonth = () => {
     if (selectedMonth === 0) {
