@@ -171,6 +171,17 @@ export const styles = StyleSheet.create({
       borderBottomWidth: 1,
       borderBottomColor: '#7FA1C3',
     },
+    eventTextContainer: {
+      flex: 3,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    noteIconContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
     eventText: {
       fontSize: 14,
       color: '#03346E',

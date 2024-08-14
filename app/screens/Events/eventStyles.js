@@ -105,6 +105,9 @@ export default StyleSheet.create({
   },
   pickerContainer: {
     marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#7FA1C3',
+    borderRadius: 15,
   },
   label: {
     fontWeight: 'bold',
