@@ -1,19 +1,60 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Modal } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../../context/AuthContext';
+import { ToastAndroid } from 'react-native'; 
+import React, { useState } from 'react';
 
 export default function SettingsPage() {
-  const {  onLogout } = useAuth();
-
+  const {  onLogout, onEditUserPassword, authState } = useAuth();
+  const navigation = useNavigation();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   
   const handleLogout = async () => {
     try {
       if(!onLogout) return;
       await onLogout();
-      Alert.alert('Çıkış', 'Başarı ile çıkış yapıldı.');
+      ToastAndroid.show(
+        'Başarı ile çıkış yapıldı.',
+        ToastAndroid.SHORT
+      );
     } catch (error) {
       Alert.alert('Hata', 'Çıkış sırasında bir hata oluştu.');
     }
+  };
+
+  const handleSavePassword = async () => {
+    
+    if (!newPassword) {
+      Alert.alert('Hata', 'Lütfen yeni şifrenizi girin.');
+      return;
+    }
+
+    try {
+      console.log('121');
+      if (!onEditUserPassword) {
+        console.log('onEditUserPassword fonksiyonu mevcut değil');
+        return;
+      }
+      if (!authState?.user) {
+        console.log('authState.user mevcut değil veya null');
+        return;
+      }
+      console.log('122');
+      await onEditUserPassword(authState.user.user_id, newPassword);
+      ToastAndroid.show('Şifre başarıyla değiştirildi!', ToastAndroid.SHORT);
+      setIsModalVisible(false); 
+      setNewPassword(''); 
+    } catch (error) {
+      console.log('Hata:', error);
+      Alert.alert('Hata', 'Şifre güncellenirken bir hata oluştu.');
+    }
+  };
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setNewPassword('');
   };
 
   return (
@@ -26,8 +67,11 @@ export default function SettingsPage() {
       <Text style={styles.sectionTitle}>Ayarlar</Text>
       <View style={styles.separator} />
 
-      <TouchableOpacity style={styles.button} onPress={() => { /* update information screen */ }}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Güncelle')}>
         <Text style={styles.buttonText}>Bilgilerimi Güncelle</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.passButton} onPress={() => setIsModalVisible(true)}>
+        <Text style={styles.buttonText}>Şifremi Değiştir</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
@@ -40,6 +84,39 @@ export default function SettingsPage() {
         <Text style={styles.buttonText}>Hesabımı Sil</Text>
       </TouchableOpacity>
       </View>
+
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={handleCancel}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Şifremi Değiştir</Text>
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                secureTextEntry={!showPassword}
+                value={newPassword}
+                onChangeText={setNewPassword}
+                placeholder="Yeni Şifre"
+              />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <Icon name={showPassword ? "eye-off-outline" : "eye-outline"} size={24} color="gray" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+                <Text style={styles.buttonText}>İptal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.saveButton} onPress={handleSavePassword}>
+                <Text style={styles.buttonText}>Kaydet</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+        </Modal>
     </View>
   );
 }
@@ -98,7 +175,17 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   button: {
-    backgroundColor: '#478CCF',
+    backgroundColor: '#85b2de',
+    padding: 15,
+    width:270,
+    borderRadius: 15,
+    margin: 50,
+    marginTop:35,
+    marginBottom:1,
+    alignItems: 'center',
+  },
+  passButton: {
+    backgroundColor: '#85b2de',
     padding: 15,
     width:270,
     borderRadius: 15,
@@ -108,7 +195,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoutButton: {
-    backgroundColor: '#7FA1C3',
+    backgroundColor: '#4d83b8',
   },
   deleteButton: {
     backgroundColor: '#C80036',
@@ -119,5 +206,58 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     color: '#FFF',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 15,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#03346E',
+    marginBottom: 30,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderColor: '#85b2de',
+    marginBottom: 20,
+    borderRadius: 15,
+    paddingHorizontal: 10,
+  },
+  input: {
+    flex: 1,
+    padding: 10,
+    fontSize: 16,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 30,
+  },
+  cancelButton: {
+    backgroundColor: '#abb1b8',
+    padding: 10,
+    borderRadius: 15,
+    width: '45%',
+    alignItems: 'center',
+  },
+  saveButton: {
+    backgroundColor: '#4d83b8',
+    padding: 10,
+    borderRadius: 15,
+    width: '45%',
+    alignItems: 'center',
   },
 });
