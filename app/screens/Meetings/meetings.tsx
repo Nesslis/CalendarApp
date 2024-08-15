@@ -1,4 +1,4 @@
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Modal, TextInput } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Modal, TextInput, ToastAndroid, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FloatingAction } from "react-native-floating-action";
@@ -29,8 +29,6 @@ interface Event {
   updated_at: string;
   content?: string;
 }
-
-
 export default function MeetingsPage() {
   const { onSearchEvents, authState } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
@@ -39,7 +37,7 @@ export default function MeetingsPage() {
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [showStartDatePicker, setShowStartDatePicker] = useState<boolean>(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState<boolean>(false);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<Event>();
   const [modalVisible, setModalVisible] = useState(false);
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -52,7 +50,7 @@ export default function MeetingsPage() {
       fetchEvents();
     }
   };
-  
+ 
 
   const fetchEvents = async () => {
     if (authState?.authenticated) {
@@ -138,42 +136,6 @@ export default function MeetingsPage() {
 
   return (
     <View style={styles.container}>
-      {/* <View style={styles.dateContainer}>
-        <TouchableOpacity style={styles.dateButton} onPress={() => setShowStartDatePicker(true)}>
-          <Text style={styles.dateButtonText}>{startDate ? formatDate(startDate.toISOString()) : 'Başlangıç Tarihi'}</Text>
-        </TouchableOpacity>
-        {showStartDatePicker && (
-          <DateTimePicker
-            value={startDate || new Date()}
-            mode="date"
-            display="default"
-            onChange={(event, date) => {
-              setShowStartDatePicker(false);
-              if (date) setStartDate(date);
-            }}
-          />
-        )}
-        <TouchableOpacity style={styles.dateButton} onPress={() => setShowEndDatePicker(true)}>
-          <Text style={styles.dateButtonText}>{endDate ? formatDate(endDate.toISOString()) : 'Bitiş Tarihi'}</Text>
-        </TouchableOpacity>
-        {showEndDatePicker && (
-          <DateTimePicker
-            value={endDate || new Date()}
-            mode="date"
-            display="default"
-            onChange={(event, date) => {
-              setShowEndDatePicker(false);
-              if (date) setEndDate(date);
-            }}
-          />
-        )}
-        <TouchableOpacity style={styles.clearButton} onPress={handleClearFilters}>
-          <Icon name="times" size={20} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.applyButton} onPress={handleFetchEvents}>
-          <Icon name="check" size={20} color="#fff" />
-        </TouchableOpacity>
-      </View> */}
       <TouchableOpacity style={styles.filterIcon} onPress={() => setFilterModalVisible(true)}>
     <Icon name="filter" size={25} color="#03346E" />
   </TouchableOpacity>
@@ -259,7 +221,9 @@ export default function MeetingsPage() {
         />
       </View>
       </View>
+      {selectedEvent && (
       <EventDetail event={selectedEvent} onClose={() => setSelectedEvent(null)} />
+      )}
         <AddEventModal visible={modalVisible} onClose={()=> setModalVisible(false)} defaultCategoryId={1} onEventAdded={() => fetchEvents} />
       <FloatingAction
       color='#478CCF'

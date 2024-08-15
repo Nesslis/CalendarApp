@@ -1,8 +1,11 @@
-import { View, Text, TouchableOpacity, Modal, StyleSheet, TextInput, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, TextInput, Alert, ToastAndroid } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import NoteDetailsModal from './noteDetail';
+import AddNoteModal from './addNote';
 
 interface Event {
   event_id: number;
@@ -17,17 +20,69 @@ interface Event {
   updated_at: string;
   content?: string;
 }
-
+interface Note {
+  note_id: number;
+  event_id?: number;
+  user_id: number;
+  title: string;
+  content: string;
+}
 interface EventDetailProps {
-  event: Event | null;
+  event?: Event | null;
   onClose: () => void;
 }
 
 const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
-  const { onEditEvent, onDeleteEvent } = useAuth();
+  const { onEditEvent, onDeleteEvent, onFetchEventNotes } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedEvent, setEditedEvent] = useState(event);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [isNoteModalVisible, setIsNoteModalVisible] = useState(false);
+  const [isAddNoteModalVisible, setIsAddNoteModalVisible] = useState(false);
+
+  useEffect(() => {
+    if (event?.category_id === 1) {
+      fetchNotes();
+    }
+  }, [event]);
+
+  const fetchNotes = async () => {
+    if (!event) return;
+    try {
+      if(!onFetchEventNotes) return;
+      const notesData = await onFetchEventNotes(event.event_id);
+      setNotes(notesData);
+    } catch (error) {
+      console.error('Failed to fetch notes:', error);
+    }
+  };
+  const handleNoteIconPress = () => {
+    if (notes.length > 0) {
+      setIsNoteModalVisible(true);
+    }
+  };
+  const renderNotesIcon = () => {
+    if (notes.length === 0) {
+      return (
+        <TouchableOpacity >
+          <Icon name="minus" size={20} color="#03346E" />
+        </TouchableOpacity>
+      );
+    } else if (notes.length === 1) {
+      return (
+        <TouchableOpacity onPress={handleNoteIconPress}>
+           <Ionicons name="document-text-outline" size={24} color="#03346E" />
+        </TouchableOpacity>
+      );
+    } else {
+      return (
+        <TouchableOpacity onPress={handleNoteIconPress}>
+          <Ionicons name="documents-outline" size={24} color="#03346E" />
+        </TouchableOpacity>
+      );
+    }
+  };
   
   const handleEdit = () => {
     setIsEditMode(prevMode => !prevMode);
@@ -67,7 +122,7 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
     if(!event || !onDeleteEvent) return;
     try{
       await onDeleteEvent(event.event_id);
-      Alert.alert('Etkinlik başarıyla silindi');
+      ToastAndroid.show('Etkinlik başarıyla silindi', ToastAndroid.SHORT)
       onClose();
     }catch(error) {
       console.error('Failed to delete event ', error)
@@ -104,7 +159,13 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
               ) : (
                 <Text style={styles.modalText}>{event.location}</Text>
               )}
+              <NoteDetailsModal
+            visible={isNoteModalVisible}
+            notes={notes}
+            onClose={() => setIsNoteModalVisible(false)}
+            />
             </View>
+            
           </>
         );
       case 2: // Ziyaretçi
@@ -160,7 +221,11 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
     const year = date.getUTCFullYear();
     return `${day}.${month}.${year}`;
   };
-
+  const handleAddNoteModalClose = () => {
+    setIsAddNoteModalVisible(false);
+    fetchNotes(); 
+  };
+  
   return (
     <Modal
       transparent={true}
@@ -184,17 +249,15 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
             >
               <Icon name="trash" size={22} color="red" />
             </TouchableOpacity>
-          <Text style={styles.modalTitle}>
           {isEditMode ? (
             <TextInput
-              style={styles.modalInput}
+              style={[styles.modalInput, { fontSize: 20, fontWeight: 'bold' }]}
               value={editedEvent?.title || ''}
               onChangeText={(text) => handleChange('title', text)}
             />
           ) : (
-            event.title
+            <Text style={styles.modalTitle}>{event.title}</Text>
           )}
-          </Text>
           <View style={styles.modalSeparator} />
           <View style={styles.modalRow}>
             <Text style={styles.modalLabel}>Tarih:</Text>
@@ -245,14 +308,41 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
             </View>
           )}
           {renderDetail()}
+          {event.category_id === 1 && (
+            <>
+              <View style={styles.modalRow}>
+                <Text style={styles.modalLabel}>Toplantı Notları:</Text>
+                {renderNotesIcon()}
+              </View>
+              <View style={styles.modalButtonRow}>
+                <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
+                  <Text style={styles.closeButtonText}>Kapat</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.modalSaveButton} onPress={() => setIsAddNoteModalVisible(true)}>
+                  <Text style={styles.modalSaveButtonText}>Not Ekle</Text>
+                </TouchableOpacity>
+                <AddNoteModal
+                visible={isAddNoteModalVisible}
+                onClose={handleAddNoteModalClose}
+                noteType="meeting"
+                selectedEvent={event}
+                onNoteAdded={fetchNotes}
+                />
+              </View>
+            </>
+          )}
+          {event.category_id !== 1 && (
+            <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
+              <Text style={styles.closeButtonText}>Kapat</Text>
+            </TouchableOpacity>
+          )}
           {isEditMode && (
             <TouchableOpacity style={styles.modalSaveButton} onPress={handleSave}>
             <Text style={styles.modalSaveButtonText}>Kaydet</Text>
           </TouchableOpacity>
           )}
-          <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>Kapat</Text>
-          </TouchableOpacity>
+          
+          
         </View>
       </View>
     </Modal>
@@ -284,11 +374,12 @@ const styles = StyleSheet.create({
       borderBottomWidth: 1,
       borderBottomColor: '#7FA1C3',
       marginVertical: 10,
+      marginBottom: 15,
     },
     modalRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: 10,
+      marginBottom: 15,
     },
     modalLabel: {
       fontWeight: 'bold',
@@ -344,10 +435,10 @@ const styles = StyleSheet.create({
       borderBottomColor: '#7FA1C3',
       padding: 5,
       color: '#333',
-      width: '80%',
+      width: '70%',
     },
     datePickerButton: {
-      padding: 10,
+      padding: 5,
       width: '60%',
       textAlign: 'center',
       borderRadius: 5,
