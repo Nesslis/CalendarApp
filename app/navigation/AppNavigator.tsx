@@ -18,6 +18,7 @@ import NotesPage from '../screens/Notes/notes';
 import SettingsPage from '../screens/Settings/settings';
 import { useAuth } from '../context/AuthContext';
 import DayEventsPage from '../screens/Calendar/dayEvents';
+import EditProfile from '../screens/Settings/editProfile';
 
 // Authentication context
 const AuthContext = createContext({ isLoggedIn: false, login: () => {}, logout: () => {} });
@@ -32,8 +33,20 @@ const CalendarStackNavigator = () => {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Takvim" component={CalendarPage} options={hideHeader} />
+      <Stack.Screen name="Calendar" component={CalendarPage} options={hideHeader} />
       <Stack.Screen name="Days" component={DayEventsPage} options={hideHeader} />
+    </Stack.Navigator>
+  );
+};
+const SettingsStackNavigator = () => {
+  const hideHeader = () => ({
+    headerShown: false,
+  });
+
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Settings" component={SettingsPage} options={hideHeader} />
+      <Stack.Screen name="Güncelle" component={EditProfile} options={hideHeader} />
     </Stack.Navigator>
   );
 };
@@ -86,7 +99,7 @@ const MainTabNavigator = () => {
       <Tab.Screen name="Toplantılar" component={MeetingsPage} options={hideHeader}/>
       <Tab.Screen name="Etkinlikler" component={EventsPage} options={hideHeader}/>
       <Tab.Screen name="Notlarım" component={NotesPage} options={hideHeader}/>
-      <Tab.Screen name="Ayarlar" component={SettingsPage} options={hideHeader}/>
+      <Tab.Screen name="Ayarlar" component={SettingsStackNavigator} options={hideHeader}/>
     </Tab.Navigator>
   )
 }
