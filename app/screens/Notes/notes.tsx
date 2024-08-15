@@ -21,7 +21,6 @@ export default function NotesPage() {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [addNoteModalVisible, setAddNoteModalVisible] = useState(false);
-  const [selectedNoteType, setSelectedNoteType] = useState<'personal' | 'meeting'>('personal');
 
   useEffect(() => {
     fetchNotes();
@@ -38,7 +37,6 @@ export default function NotesPage() {
   }, [selectedTab]);
 
   const openAddNoteModal = (noteType: 'personal' | 'meeting') => {
-    setSelectedNoteType(noteType);
     setAddNoteModalVisible(true);
   };
   const openNoteModal = (note: Note) => {

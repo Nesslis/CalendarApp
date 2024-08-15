@@ -9,10 +9,23 @@ interface AddNoteModalProps {
   onClose: () => void;
   onNoteAdded ?: () => void;
   noteType: 'personal' | 'meeting';
+  selectedEvent?: Event ;
+}
+interface Event {
+  event_id: number;
+  user_id: number;
+  category_id: number;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  participant: string;
+  created_at: string;
+  updated_at: string;
+  content: string;
 }
 
-
-export default function AddNoteModal({ visible, onClose, onNoteAdded, noteType }: AddNoteModalProps) {
+export default function AddNoteModal({ visible, onClose, onNoteAdded, noteType, selectedEvent }: AddNoteModalProps) {
   const { onAddNote, onSearchEvents, authState } = useAuth();
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
@@ -23,7 +36,10 @@ export default function AddNoteModal({ visible, onClose, onNoteAdded, noteType }
         if (noteType === 'meeting') {
           fetchEvents();
         }
-      }, [noteType]);
+        if (selectedEvent) {
+          setSelectedEventId(selectedEvent.event_id);
+        }
+      }, [noteType, selectedEvent]);
     
       const fetchEvents = async () => {
         if (authState?.authenticated) {
@@ -83,8 +99,11 @@ export default function AddNoteModal({ visible, onClose, onNoteAdded, noteType }
                 style={styles.picker}
                 onValueChange={(itemValue) => setSelectedEventId(itemValue)}
               >
-                <Picker.Item label="Toplantılarım" value={null}/>
-                {events.map((event) => (
+                {!selectedEventId && <Picker.Item label="Seç" value={null} />}
+                  {selectedEvent && (
+                    <Picker.Item label={selectedEvent.title} value={selectedEvent.event_id} />
+                  )}
+                {events.map((event: Event) => (
                   <Picker.Item key={event.event_id} label={event.title} value={event.event_id} />
                 ))}
               </Picker></View>
