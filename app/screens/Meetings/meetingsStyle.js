@@ -234,5 +234,17 @@ export const styles = StyleSheet.create({
       color: '#fff',
       textAlign: 'center',
     },
+    fab: {
+      position: 'absolute',
+      right: 30,
+      bottom: 30,
+      backgroundColor: '#81A263',
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      justifyContent: 'center',
+      alignItems: 'center',
+      elevation: 8,
+    },
   });
   

@@ -111,11 +111,11 @@ export default function AddNoteModal({ visible, onClose, onNoteAdded, noteType, 
           )}
           <View style={styles.inputRow}>
             <Text style={styles.label}>Başlık:</Text>
-            <TextInput style={styles.input} value={title} onChangeText={setTitle} />
+            <TextInput style={styles.input} value={title} onChangeText={setTitle} maxLength={50} />
           </View>
           <View style={styles.inputRow}>
             <Text style={styles.label}>İçerik:</Text>
-            <TextInput style={styles.input} value={content} onChangeText={setContent} />
+            <TextInput style={styles.input} value={content} onChangeText={setContent}  maxLength={450} />
           </View>
           <TouchableOpacity style={styles.applyButton} onPress={handleAddNote}>
             <Text style={styles.applyButtonText}>Kaydet</Text>
