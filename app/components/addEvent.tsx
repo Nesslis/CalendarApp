@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import {  View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import moment from 'moment-timezone';
+import { NavigationProp, ParamListBase, useRoute } from '@react-navigation/native';
 
 interface Category {
   category_id: number;
@@ -12,12 +13,12 @@ interface Category {
 }
 
 interface AddEventModalProps {
-  visible: boolean;
-  onClose: () => void;
   defaultCategoryId?: number;
   onEventAdded ?: () => void;
   selectedDate?: string;
+  navigation: NavigationProp<ParamListBase>;
 }
+
 interface Event {
   event_id: number;
   user_id: number;
@@ -32,7 +33,7 @@ interface Event {
   content: string | null;
 }
 
-export default function AddEventModal({ visible, onClose, defaultCategoryId, onEventAdded, selectedDate }: AddEventModalProps) {
+export default function AddEvent({ defaultCategoryId, onEventAdded, selectedDate, navigation }: AddEventModalProps) {
   const { onGetEventCategories, onAddEvent, onSearchEvents, authState } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(defaultCategoryId || null);
@@ -44,6 +45,7 @@ export default function AddEventModal({ visible, onClose, defaultCategoryId, onE
   const [participant, setParticipant] = useState('');
   const [content, setContent] = useState('');
   const [existingEvents, setExistingEvents] = useState([]);
+  const route = useRoute();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -62,7 +64,7 @@ export default function AddEventModal({ visible, onClose, defaultCategoryId, onE
     const fetchEvents = async () => {
       try {
         if (!onSearchEvents) return;
-        const eventsData = await onSearchEvents(null, '', ''); // Get all events for the user
+        const eventsData = await onSearchEvents(null, '', '');
         setExistingEvents(eventsData);
       } catch (error) {
         console.error('Error fetching events:', error);
@@ -71,7 +73,13 @@ export default function AddEventModal({ visible, onClose, defaultCategoryId, onE
     fetchCategories();
     fetchEvents();
   }, [onGetEventCategories, onSearchEvents, authState]);
-  
+  useEffect(() => {
+    if (route.params?.defaultCategoryId) {
+      setSelectedCategory(route.params.defaultCategoryId);
+    } else {
+      setSelectedCategory(null);
+    }
+  }, [route.params?.defaultCategoryId]);
   const handleAddEvent = async () => {
     if (!selectedCategory || !title || !date || !time) {
       Alert.alert('Lütfen tüm gerekli alanları doldurun.');
@@ -106,7 +114,7 @@ export default function AddEventModal({ visible, onClose, defaultCategoryId, onE
       if (onEventAdded) onEventAdded();
       clearFormFields();
       Alert.alert('Etkinlik başarıyla eklendi.');
-      onClose();
+      navigation.goBack()
     } catch (error) {
       console.error('Error adding event:', error);
       Alert.alert('Etkinlik eklenirken bir hata oluştu.');
@@ -168,12 +176,14 @@ export default function AddEventModal({ visible, onClose, defaultCategoryId, onE
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true}>
-      <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Ionicons name="close" size={28} color="#81A263" />
+          <View style={styles.topRightShape} />
+          <View style={styles.bottomLeftShape} />
+          <View style={styles.bottomLeftShape2} />
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={28} color="#81A263" />
           </TouchableOpacity>
+          
           <View style={styles.picker}>
             <Picker
               selectedValue={selectedCategory}
@@ -216,34 +226,61 @@ export default function AddEventModal({ visible, onClose, defaultCategoryId, onE
             <Text style={styles.applyButtonText}>Kaydet</Text>
           </TouchableOpacity>
         </View>
-      </View>
-    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  modalBackground: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
   modalContainer: {
-    width: '80%',
-    backgroundColor: '#F5EDED',
+    flex: 1,
+    backgroundColor: '#F5F5F5',
     borderRadius: 10,
-    padding: 20,
+    padding: 40,
+    justifyContent: 'center',
+    position: 'relative',
   },
-  closeButton: {
-    alignSelf: 'flex-end',
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    zIndex: 10,
+  },
+  topRightShape: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 150,
+    height: 120,
+    backgroundColor: 'rgba(129,162,99, 0.3)',
+    borderBottomLeftRadius: 250,
+    zIndex: -1,
+  },
+  bottomLeftShape: {
+    position: 'absolute',
+    bottom: -70,
+    left: -90,
+    width: 230,
+    height: 230,
+    backgroundColor: 'rgba(129, 162, 99, 0.4)',
+    borderRadius: 250,
+  },
+  bottomLeftShape2: {
+    position: 'absolute',
+    bottom: -110,
+    left: -10,
+    width: 230,
+    height: 230,
+    backgroundColor: 'rgba(129, 162, 99, 0.3)',
+    borderRadius: 250,
   },
   label: {
     fontSize: 16,
     color: '#03346E',
+    marginRight: 15,
   },
   input: {
     height: 40,
     borderColor: '#7FA1C3',
+    borderRadius: 5,
     borderWidth: 1,
     paddingHorizontal: 8,
     width: '60%',
@@ -252,6 +289,7 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
     width: '100%',
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: '#7FA1C3',
     flexDirection: 'row',
@@ -276,7 +314,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 17,
   },
   applyButton: {
     backgroundColor: 'rgba(182, 199, 170, 1)',
