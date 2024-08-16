@@ -2,15 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView, TouchableWithoutFeedback } from 'react-native';
 import { FloatingAction } from "react-native-floating-action";
 import { useAuth } from '../../context/AuthContext';
-import AddEventModal from '../../components/addEventModal';
 import calendarStyles from './calendarStyles';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import {  NavigationProp, ParamListBase } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 
 type RootStackParamList = {
   Calendar: undefined;
   Days: { selectedDate: string; events: Event[] };
+  navigation: NavigationProp<ParamListBase>;
 };
 
 
@@ -34,18 +34,16 @@ interface Event {
   updated_at: string;
   content: string | null;
 }
-const CalendarPage = () => {
+const CalendarPage = ({navigation}: RootStackParamList) => {
   const currentDate = new Date();
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth());
   const [isYearPickerVisible, setIsYearPickerVisible] = useState(false);
   const [isMonthPickerVisible, setIsMonthPickerVisible] = useState(false);
-  const [addEventModalVisible, setAddEventModalVisible] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
   const { onGetEvents } = useAuth();
   const yearScrollViewRef = useRef<ScrollView>(null);
   const monthScrollViewRef = useRef<ScrollView>(null);
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const months = [
     'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
@@ -111,6 +109,9 @@ const CalendarPage = () => {
     }
   };
 
+  const handleAddEvent = () => {
+    navigation.navigate('AddEvent');
+  };
 
   const renderDays = () => {
     const firstDayOfMonth = new Date(selectedYear, selectedMonth, 1).getDay();
@@ -252,11 +253,10 @@ const CalendarPage = () => {
       <View style={calendarStyles.calendarContainer}>
         {renderDays()}
       </View>
-      <AddEventModal visible={addEventModalVisible} onClose={()=> setAddEventModalVisible(false)} onEventAdded={() => fetchAndFilterEvents} />
       <FloatingAction
       color='#478CCF'
     actions={actions}
-    onPressItem={() => setAddEventModalVisible(true)}
+    onPressItem={handleAddEvent}
   />
     </View>
   );

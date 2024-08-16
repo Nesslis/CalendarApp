@@ -19,6 +19,9 @@ import SettingsPage from '../screens/Settings/settings';
 import { useAuth } from '../context/AuthContext';
 import DayEventsPage from '../screens/Calendar/dayEvents';
 import EditProfile from '../screens/Settings/editProfile';
+import AddEvent from '../components/addEvent';
+import NoteDetail from '../components/noteDetail';
+import EventDetail from '../components/eventDetail';
 
 // Authentication context
 const AuthContext = createContext({ isLoggedIn: false, login: () => {}, logout: () => {} });
@@ -35,6 +38,21 @@ const CalendarStackNavigator = () => {
     <Stack.Navigator>
       <Stack.Screen name="Calendar" component={CalendarPage} options={hideHeader} />
       <Stack.Screen name="Days" component={DayEventsPage} options={hideHeader} />
+      <Stack.Screen name="AddEvent" component={AddEvent} options={hideHeader} />
+      <Stack.Screen name="EventDetail" component={EventDetail} options={hideHeader}/>
+    </Stack.Navigator>
+  );
+};
+const HomeStackNavigator = () => {
+  const hideHeader = () => ({
+    headerShown: false,
+  });
+
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="HomePage" component={HomePage} options={hideHeader} />
+      <Stack.Screen name="EventDetail" component={EventDetail} options={hideHeader} />
+      <Stack.Screen name="NoteDetail" component={NoteDetail} options={hideHeader} />
     </Stack.Navigator>
   );
 };
@@ -47,10 +65,52 @@ const SettingsStackNavigator = () => {
     <Stack.Navigator>
       <Stack.Screen name="Settings" component={SettingsPage} options={hideHeader} />
       <Stack.Screen name="Güncelle" component={EditProfile} options={hideHeader} />
+      <Stack.Screen name="AddEvent" component={AddEvent} options={hideHeader} />
+      <Stack.Screen name="NoteDetail" component={NoteDetail} options={hideHeader} />
+      <Stack.Screen name="EventDetail" component={EventDetail} />
     </Stack.Navigator>
   );
 };
+const EventsStackNavigator = () => {
+  const hideHeader = () => ({
+    headerShown: false,
+  });
 
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Events" component={EventsPage} options={hideHeader} />
+      <Stack.Screen name="AddEvent" component={AddEvent} options={hideHeader} />
+      <Stack.Screen name="NoteDetail" component={NoteDetail} options={hideHeader} />
+      <Stack.Screen name="EventDetail" component={EventDetail} options={hideHeader}/>
+    </Stack.Navigator>
+  );
+};
+const MeetingsStackNavigator = () => {
+  const hideHeader = () => ({
+    headerShown: false,
+  });
+
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Meetings" component={MeetingsPage} options={hideHeader} />
+      <Stack.Screen name="AddEvent" component={AddEvent} options={hideHeader} />
+      <Stack.Screen name="NoteDetail" component={NoteDetail} options={hideHeader} />
+      <Stack.Screen name="EventDetail" component={EventDetail} options={hideHeader}/>
+    </Stack.Navigator>
+  );
+};
+const NotesStackNavigator = () => {
+  const hideHeader = () => ({
+    headerShown: false,
+  });
+
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Notes" component={NotesPage} options={hideHeader} />
+      <Stack.Screen name="NoteDetail" component={NoteDetail} options={hideHeader} />
+    </Stack.Navigator>
+  );
+};
 const MainTabNavigator = () => {
   const hideHeader = () => ({
     headerShown: false,
@@ -58,8 +118,8 @@ const MainTabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
-        tabBarActiveTintColor: '#478CCF', // Active tab color
-        tabBarInactiveTintColor: 'gray', // Inactive tab color
+        tabBarActiveTintColor: '#478CCF', 
+        tabBarInactiveTintColor: 'gray', 
         tabBarStyle: {
           display: 'flex', // Tab bar style
         },
@@ -94,11 +154,11 @@ const MainTabNavigator = () => {
         },
       })}
     >
-      <Tab.Screen name="AnaSayfa" component={HomePage} options={hideHeader} />
+      <Tab.Screen name="AnaSayfa" component={HomeStackNavigator} options={hideHeader} />
       <Tab.Screen name="Takvim" component={CalendarStackNavigator} options={hideHeader}/>
-      <Tab.Screen name="Toplantılar" component={MeetingsPage} options={hideHeader}/>
-      <Tab.Screen name="Etkinlikler" component={EventsPage} options={hideHeader}/>
-      <Tab.Screen name="Notlarım" component={NotesPage} options={hideHeader}/>
+      <Tab.Screen name="Toplantılar" component={MeetingsStackNavigator} options={hideHeader}/>
+      <Tab.Screen name="Etkinlikler" component={EventsStackNavigator} options={hideHeader}/>
+      <Tab.Screen name="Notlarım" component={NotesStackNavigator} options={hideHeader}/>
       <Tab.Screen name="Ayarlar" component={SettingsStackNavigator} options={hideHeader}/>
     </Tab.Navigator>
   )
