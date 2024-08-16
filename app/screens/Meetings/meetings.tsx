@@ -1,11 +1,9 @@
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Modal, TextInput, ToastAndroid, Alert } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Modal, TextInput} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FloatingAction } from "react-native-floating-action";
-import AddEventModal from '../../components/addEventModal';
-import { useFocusEffect } from '@react-navigation/native';
+import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import EventDetail from '../../components/eventDetail';
 import { useAuth } from '../../context/AuthContext';
 import { styles } from './meetingsStyle';
 import moment from 'moment';
@@ -29,7 +27,11 @@ interface Event {
   updated_at: string;
   content?: string;
 }
-export default function MeetingsPage() {
+type PageProps = {
+  navigation: NavigationProp<ParamListBase>;
+};
+
+export default function MeetingsPage({ navigation }: PageProps) {
   const { onSearchEvents, authState } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -37,8 +39,6 @@ export default function MeetingsPage() {
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [showStartDatePicker, setShowStartDatePicker] = useState<boolean>(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState<boolean>(false);
-  const [selectedEvent, setSelectedEvent] = useState<Event>();
-  const [modalVisible, setModalVisible] = useState(false);
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
 
@@ -50,7 +50,9 @@ export default function MeetingsPage() {
       fetchEvents();
     }
   };
- 
+  const handleAddEvent = () => {
+    navigation.navigate('AddEvent', { defaultCategoryId: 1});
+  };
 
   const fetchEvents = async () => {
     if (authState?.authenticated) {
@@ -112,7 +114,7 @@ export default function MeetingsPage() {
   };
 
   const handleEventPress = (event: Event) => {
-    setSelectedEvent(event);
+    navigation.navigate('EventDetail', {event})
   };
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -221,17 +223,11 @@ export default function MeetingsPage() {
         />
       </View>
       </View>
-      {selectedEvent && (
-      <EventDetail event={selectedEvent} onClose={() => setSelectedEvent(null)} />
-      )}
-        <AddEventModal visible={modalVisible} onClose={()=> setModalVisible(false)} defaultCategoryId={1} onEventAdded={() => fetchEvents} />
       <FloatingAction
       color='#478CCF'
-    actions={actions}
-    onPressItem={() => {
-      setModalVisible(true);
-    }}
-  />
+      actions={actions}
+      onPressItem={ handleAddEvent}
+      />
     </View>
   );
 }

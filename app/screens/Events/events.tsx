@@ -2,14 +2,13 @@ import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Modal } from
 import React, { useCallback, useEffect, useState } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { FloatingAction } from "react-native-floating-action";
-import { useFocusEffect } from '@react-navigation/native';
+import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import EventDetail from '../../components/eventDetail';
 import { Picker } from '@react-native-picker/picker';
 import { useAuth } from '../../context/AuthContext';
 import moment from 'moment-timezone';
 import styles from './eventStyles';
-import AddEventModal from '../../components/addEventModal';
 
 interface Event {
   event_id: number;
@@ -24,7 +23,9 @@ interface Event {
   updated_at: string;
   content?: string;
 }
-
+type EventsPageProps = {
+  navigation: NavigationProp<ParamListBase>;
+};
 const actions = [
   {
     text: 'Etkinlik ekle',
@@ -38,7 +39,7 @@ interface Category {
   category_name: string;
 }
 
-export default function EventsPage() {
+export default function EventsPage({navigation} : EventsPageProps) {
   const { onSearchEvents, onGetEventCategories, authState } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -49,8 +50,6 @@ export default function EventsPage() {
   const [showStartDatePicker, setShowStartDatePicker] = useState<boolean>(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState<boolean>(false);
   const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [addEventModalVisible, setAddEventModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -68,6 +67,10 @@ export default function EventsPage() {
 
     fetchCategories();
   }, [onGetEventCategories]);
+
+  const handleAddEvent = () => {
+    navigation.navigate('AddEvent');
+  };
 
   const fetchEvents = async () => {
     if (authState?.authenticated) {
@@ -108,7 +111,7 @@ export default function EventsPage() {
   }
 
   const handleEventPress = (event: Event) => {
-    setSelectedEvent(event);
+    navigation.navigate('EventDetail', {event})
   };
 
   const handleApplyFilters = (category: number | undefined, startDate: Date | undefined, endDate: Date | undefined) => {
@@ -164,9 +167,6 @@ export default function EventsPage() {
         />
       </View>
       </View>
-      {selectedEvent && (
-      <EventDetail event={selectedEvent} onClose={() => setSelectedEvent(null)} />
-      )}
       <Modal
         transparent={true}
         animationType="slide"
@@ -244,11 +244,10 @@ export default function EventsPage() {
           </View>
         </View>
       </Modal>
-      <AddEventModal visible={addEventModalVisible} onClose={()=> setAddEventModalVisible(false)} onEventAdded={() => fetchEvents} />
       <FloatingAction
       color='#478CCF'
       actions={actions}
-      onPressItem={() => setAddEventModalVisible(true)}
+      onPressItem={handleAddEvent}
       />
     </View>
   );

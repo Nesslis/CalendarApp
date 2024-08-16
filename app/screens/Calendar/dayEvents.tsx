@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { NavigationProp, ParamListBase, RouteProp, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import AddEventModal from '../../components/addEventModal';
-import EventDetail from '../../components/eventDetail';
 
 interface Event {
   event_id: number;
@@ -40,18 +38,16 @@ const formatTime = (time: string) => {
 export default function DayEventsPage({ navigation }: DayEventsPageProps) {
   const route = useRoute<DayEventsPageRouteProp>();
   const { selectedDate, events } = route.params;
-  const [modalVisible, setModalVisible] = useState(false);
   const dateObject = new Date(selectedDate);
   const formattedDate = dateObject.toLocaleDateString();
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   const filteredEvents = events.filter(event => new Date(event.date).toDateString() === new Date(selectedDate).toDateString());
 
   const handleAddEvent = () => {
-    setModalVisible(true);
+    navigation.navigate('AddEvent', { selectedDate: selectedDate });
   };
   const handleEventPress = (event: Event) => {
-    setSelectedEvent(event);
+    navigation.navigate('EventDetail', {event})
   };
 
   return (
@@ -90,21 +86,10 @@ export default function DayEventsPage({ navigation }: DayEventsPageProps) {
         ) : (
           <Text style={styles.noEventsText}>Bu tarihte etkinlik bulunmamaktadır.</Text>
         )}
-        {selectedEvent && (
-      <EventDetail event={selectedEvent} onClose={() => setSelectedEvent(null)} />
-      )}
       </ScrollView>
       <TouchableOpacity style={styles.fab} onPress={handleAddEvent}>
         <Ionicons name="add" size={28} color="white" />
       </TouchableOpacity>
-      <AddEventModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        selectedDate={selectedDate} 
-        onEventAdded={() => {
-          setModalVisible(false);
-        }}
-      />
     </View>
   );
 }

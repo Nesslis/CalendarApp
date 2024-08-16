@@ -5,8 +5,7 @@ import { styles } from './homeStyles';
 import moment from 'moment';
 import 'moment/locale/tr';
 import 'moment-timezone';
-import { useFocusEffect } from '@react-navigation/native';
-import EventDetail from '../../components/eventDetail';
+import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation/native';
 
 interface Event {
   event_id: number;
@@ -21,14 +20,15 @@ interface Event {
   updated_at: string;
   content?: string;
 }
-
-export default function HomePage() {
+type PageProps = {
+  navigation: NavigationProp<ParamListBase>;
+};
+export default function HomePage({ navigation }: PageProps) {
   const { onSearchEvents, authState } = useAuth();
   const [name, setName] = useState("");
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(moment().tz('Europe/Istanbul').format('YYYY-MM-DD'));
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   useEffect(() => {
     if (authState?.user) {
@@ -67,10 +67,6 @@ export default function HomePage() {
     }, [authState, selectedDate])
   );
 
-  const refreshEvents = () => {
-    fetchEvents(selectedDate);
-  };
-
   const renderWeekDays = () => {
     const startOfWeek = moment().tz('Europe/Istanbul').startOf('isoWeek');
     const days = [];
@@ -96,7 +92,7 @@ export default function HomePage() {
   };
 
   const handleEventPress = (event: Event) => {
-    setSelectedEvent(event);
+    navigation.navigate('EventDetail', {event})
   };
 
   if (loading) {
@@ -126,9 +122,6 @@ export default function HomePage() {
         ))
       ) : (
         <Text style={styles.noEvents}>Bugün için kayıtlı etkinliğiniz yok.</Text>
-      )}
-      {selectedEvent && (
-          <EventDetail event={selectedEvent} onClose={() => {setSelectedEvent(null); refreshEvents();}} />
       )}
     </ScrollView>
   );
