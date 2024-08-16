@@ -4,8 +4,9 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
 import React, { useEffect, useState } from 'react';
-import NoteDetailsModal from './noteDetail';
 import AddNoteModal from './addNote';
+import { NavigationProp, ParamListBase, useRoute } from '@react-navigation/native';
+import { KeyboardAvoidingView } from 'native-base';
 
 interface Event {
   event_id: number;
@@ -27,20 +28,19 @@ interface Note {
   title: string;
   content: string;
 }
-interface EventDetailProps {
-  event?: Event | null;
-  onClose: () => void;
+interface EventProps {
+  navigation: NavigationProp<ParamListBase>;
 }
 
-const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
+export default function EventDetail({  navigation }: EventProps)  {
   const { onEditEvent, onDeleteEvent, onFetchEventNotes } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
-  const [editedEvent, setEditedEvent] = useState(event);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [notes, setNotes] = useState<Note[]>([]);
-  const [isNoteModalVisible, setIsNoteModalVisible] = useState(false);
   const [isAddNoteModalVisible, setIsAddNoteModalVisible] = useState(false);
-
+  const route = useRoute();
+  const { event } = route.params;
+  const [editedEvent, setEditedEvent] = useState(event);
   useEffect(() => {
     if (event?.category_id === 1) {
       fetchNotes();
@@ -59,9 +59,10 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
   };
   const handleNoteIconPress = () => {
     if (notes.length > 0) {
-      setIsNoteModalVisible(true);
+      navigation.navigate('NoteDetail', {notes})
     }
   };
+
   const renderNotesIcon = () => {
     if (notes.length === 0) {
       return (
@@ -102,8 +103,8 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
         category_id: editedEvent.category_id,
       });
       setIsEditMode(false);
-      Alert.alert('Etkinlik başarıyla güncellendi');
-      onClose();
+      ToastAndroid.show('Etkinlik başarıyla güncellendi', ToastAndroid.SHORT);
+      navigation.goBack();
     } catch (error) {
       console.error('Failed to edit event:', error);
     }
@@ -123,7 +124,7 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
     try{
       await onDeleteEvent(event.event_id);
       ToastAndroid.show('Etkinlik başarıyla silindi', ToastAndroid.SHORT)
-      onClose();
+      navigation.goBack();
     }catch(error) {
       console.error('Failed to delete event ', error)
     }
@@ -159,11 +160,6 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
               ) : (
                 <Text style={styles.modalText}>{event.location}</Text>
               )}
-              <NoteDetailsModal
-            visible={isNoteModalVisible}
-            notes={notes}
-            onClose={() => setIsNoteModalVisible(false)}
-            />
             </View>
             
           </>
@@ -227,14 +223,13 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
   };
   
   return (
-    <Modal
-      transparent={true}
-      animationType="slide"
-      visible={!!event}
-      onRequestClose={onClose}
-    >
       <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
+        <View style={styles.topRightShape} />
+          <View style={styles.bottomLeftShape} />
+          <View style={styles.bottomLeftShape2} />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={28} color="#478CCF" />
+          </TouchableOpacity>
           <TouchableOpacity style={styles.editIconContainer} onPress={handleEdit}>
             <Icon name="pencil" size={22} color="#000" />
           </TouchableOpacity>
@@ -314,12 +309,8 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
                 <Text style={styles.modalLabel}>Toplantı Notları:</Text>
                 {renderNotesIcon()}
               </View>
-              <View style={styles.modalButtonRow}>
-                <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
-                  <Text style={styles.closeButtonText}>Kapat</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.modalSaveButton} onPress={() => setIsAddNoteModalVisible(true)}>
-                  <Text style={styles.modalSaveButtonText}>Not Ekle</Text>
+                <TouchableOpacity style={styles.addNoteButton} onPress={() => setIsAddNoteModalVisible(true)}>
+                  <Text style={styles.addNoteButtonText}>Not Ekle</Text>
                 </TouchableOpacity>
                 <AddNoteModal
                 visible={isAddNoteModalVisible}
@@ -328,62 +319,82 @@ const EventDetail: React.FC<EventDetailProps> = ({ event, onClose }) => {
                 selectedEvent={event}
                 onNoteAdded={fetchNotes}
                 />
-              </View>
             </>
-          )}
-          {event.category_id !== 1 && (
-            <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
-              <Text style={styles.closeButtonText}>Kapat</Text>
-            </TouchableOpacity>
           )}
           {isEditMode && (
             <TouchableOpacity style={styles.modalSaveButton} onPress={handleSave}>
             <Text style={styles.modalSaveButtonText}>Kaydet</Text>
           </TouchableOpacity>
           )}
-          
-          
         </View>
-      </View>
-    </Modal>
   );
-};
+}
 
-export default EventDetail;
 const styles = StyleSheet.create({
     modalContainer: {
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0,0,0,0.5)',
-    },
-    modalContent: {
-      backgroundColor: '#FFF',
+      backgroundColor: '#F5F5F5',
       borderRadius: 10,
-      padding: 20,
-      width: '80%',
+      padding: 40,
+      justifyContent: 'center',
       position: 'relative',
     },
+    topRightShape: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      width: 150,
+      height: 120,
+      backgroundColor: 'rgba(71, 140, 207, 0.3)',
+      borderBottomLeftRadius: 250,
+      zIndex: -1,
+    },
+    bottomLeftShape: {
+      position: 'absolute',
+      bottom: -70,
+      left: -90,
+      width: 230,
+      height: 230,
+      backgroundColor: 'rgba(71, 140, 207, 0.4)',
+      borderRadius: 250,
+    },
+    bottomLeftShape2: {
+      position: 'absolute',
+      bottom: -110,
+      left: -10,
+      width: 230,
+      height: 230,
+      backgroundColor: 'rgba(71, 140, 207, 0.3)',
+      borderRadius: 250,
+    },
     modalTitle: {
-      fontSize: 20,
+      fontSize: 24,
       fontWeight: 'bold',
       color: '#03346E',
       marginBottom: 10,
     },
+    backButton: {
+      position: 'absolute',
+      top: 40,
+      left: 20,
+      zIndex: 10,
+    },
     modalSeparator: {
-      borderBottomWidth: 1,
+      borderBottomWidth: 2,
       borderBottomColor: '#7FA1C3',
       marginVertical: 10,
-      marginBottom: 15,
+      marginBottom: 35,
     },
     modalRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: 15,
+      alignItems: 'center',
+      marginBottom: 17,
     },
     modalLabel: {
-      fontWeight: 'bold',
+      fontSize: 16,
       color: '#03346E',
+      marginRight: 15,
     },
     modalText: {
       color: '#333',
@@ -393,52 +404,66 @@ const styles = StyleSheet.create({
       justifyContent: 'space-between',
       marginTop: 20,
     },
-    closeButtonText: {
-      color: '#FFF',
-      fontSize: 18,
-      textAlign: 'center',
-      fontWeight: 'bold',
-    },
     editIconContainer: {
       position: 'absolute',
-      top: 20,
-      right: 60,
+      top: 40,
+      right: 80,
       zIndex: 1,
     },
     deleteIconContainer: {
       position: 'absolute',
-      top: 20,
-      right: 20,
+      top: 40,
+      right: 30,
       zIndex: 1,
     },
-    modalCloseButton: {
+    addNoteButton: {
       marginTop: 30,
       padding: 10,
       borderRadius: 10,
-      backgroundColor: 'rgba(182, 199, 170, 1)',
+      backgroundColor: '#478CCF',
+    },
+    addNoteButtonText: {
+      color: '#FFF',
+      fontSize: 18,
+      textAlign: 'center',
+      fontWeight: 'bold',
     },
     modalSaveButton: {
       marginTop: 30,
       padding: 10,
       borderRadius: 10,
       borderWidth: 2,
-      borderColor: 'rgba(182, 199, 170, 1)',
+      borderColor: '#03346E',
     },
     modalSaveButtonText: {
-      color: 'rgba(182, 199, 170, 1)',
+      color: '#03346E',
       fontSize: 16,
       textAlign: 'center',
       fontWeight: 'bold',
     },
     modalInput: {
-      borderBottomWidth: 1,
-      borderBottomColor: '#7FA1C3',
-      padding: 5,
-      color: '#333',
-      width: '70%',
+      height: 40,
+      borderColor: '#7FA1C3',
+      borderRadius: 5,
+      borderWidth: 1,
+      paddingHorizontal: 8,
+      width: '60%',
+      textAlign: 'center',
+    },
+    picker: {
+      height: 50,
+      width: '100%',
+      borderRadius: 5,
+      borderWidth: 1,
+      borderColor: '#7FA1C3',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: 15,
+      marginBottom: 17,
     },
     datePickerButton: {
-      padding: 5,
+      padding: 10,
       width: '60%',
       textAlign: 'center',
       borderRadius: 5,

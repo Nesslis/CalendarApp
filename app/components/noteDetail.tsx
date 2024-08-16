@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, StyleSheet, TouchableOpacity, TextInput, ToastAndroid } from 'react-native';
+import {  View, Text, StyleSheet, TouchableOpacity, TextInput, ToastAndroid } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { ScrollView } from 'native-base';
+import { NavigationProp, ParamListBase } from '@react-navigation/native';
 
 interface Note {
   note_id: number;
@@ -13,17 +15,21 @@ interface Note {
 }
 
 interface NoteDetailsModalProps {
-  visible: boolean;
-  note?: Note | null;
-  notes?: Note[];
-  onClose: () => void;
+  route: {
+    params: {
+      note?: Note | null;
+      notes?: Note[];
+    }}
+  navigation: NavigationProp<ParamListBase>;
 }
 
-export default function NoteDetailsModal({ visible, note, notes, onClose }: NoteDetailsModalProps) {
+export default function NoteDetail({ route, navigation }: NoteDetailsModalProps) {
+  const {note} = route.params;
+  const {notes} = route.params;
   const { onDeleteNote, onEditNote } = useAuth();
   const [currentNoteIndex, setCurrentNoteIndex] = useState(0);
   const [editMode, setEditMode] = useState(false);
-  const [currentNote, setCurrentNote] = useState<Note | null>(note);
+  const [currentNote, setCurrentNote] = useState<Note | null | undefined>(note);
 
   useEffect(() => {
     if (notes) {
@@ -34,6 +40,7 @@ export default function NoteDetailsModal({ visible, note, notes, onClose }: Note
 
   useEffect(() => {
     if (note) {
+      console.log(note);
       setCurrentNote(note);
     }
   }, [note]);
@@ -44,7 +51,7 @@ export default function NoteDetailsModal({ visible, note, notes, onClose }: Note
         await onEditNote(currentNote.note_id, currentNote.title, currentNote.content);
         setEditMode(false);
         ToastAndroid.show('Not güncellendi!', ToastAndroid.SHORT);
-        onClose();
+        navigation.goBack();
       }
     } catch (error) {
       console.error('Failed to edit note: ', error);
@@ -56,7 +63,7 @@ export default function NoteDetailsModal({ visible, note, notes, onClose }: Note
       if (!onDeleteNote || !currentNote) return;
       await onDeleteNote(currentNote.note_id); 
       ToastAndroid.show('Not başarı ile silindi', ToastAndroid.SHORT);
-      onClose();
+      navigation.goBack();
     } catch (error) {
       console.error('Not silinirken hata oluştu:', error);
     }
@@ -94,9 +101,10 @@ export default function NoteDetailsModal({ visible, note, notes, onClose }: Note
   if (!currentNote) return null;
 
   return (
-    <Modal visible={visible} transparent={true} animationType="slide">
       <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={28} color="#7FA1C3" />
+          </TouchableOpacity>
           <View style={styles.icons}>
               <TouchableOpacity style={styles.editIconContainer} onPress={handleEdit}>
                 <Icon name="pencil" size={22} color="#000" />
@@ -122,30 +130,35 @@ export default function NoteDetailsModal({ visible, note, notes, onClose }: Note
           <View style={styles.separator} />
 
           <View style={styles.contentContainer}>
-  {notes && notes.length > 1 && (
-    <TouchableOpacity onPress={handlePrevNote} style={styles.arrowContainer}>
-      <Ionicons name="arrow-back-outline" size={24} color="black" />
-    </TouchableOpacity>
-  )}
+         {notes && notes.length > 1 && (
+            <TouchableOpacity onPress={handlePrevNote} style={styles.arrowContainer}>
+                <Ionicons name="arrow-back-outline" size={24} color="black" />
+            </TouchableOpacity>
+          )}
           {editMode ? (
+            <ScrollView>
             <TextInput 
               style={styles.modalText} 
               value={currentNote.content || ''} 
               onChangeText={(text) => handleChange('content', text)} 
+              maxLength={250}
               multiline 
             />
+            </ScrollView>
           ) : (
+            <ScrollView>
             <Text style={styles.modalText}>{currentNote.content}</Text>
+            </ScrollView>
           )}
           {notes && notes.length > 1 && (
-    <TouchableOpacity onPress={handleNextNote} style={styles.arrowContainer}>
-      <Ionicons name="arrow-forward-outline" size={24} color="black" />
-    </TouchableOpacity>
-  )}
-</View>
+           <TouchableOpacity onPress={handleNextNote} style={styles.arrowContainer}>
+             <Ionicons name="arrow-forward-outline" size={24} color="black" />
+           </TouchableOpacity>
+           )}
+          </View>
           {editMode ? (
             <View style={styles.editButtons}>
-              <TouchableOpacity onPress={onClose} style={styles.modalCloseButton}>
+              <TouchableOpacity onPress={() => navigation.goBack()} style={styles.modalCloseButton}>
                 <Text style={styles.modalCloseButtonText}>Kapat</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleSave} style={styles.modalSaveButton}>
@@ -153,44 +166,47 @@ export default function NoteDetailsModal({ visible, note, notes, onClose }: Note
               </TouchableOpacity>
             </View>
           ) : (
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <TouchableOpacity onPress={() => navigation.goBack()}  style={styles.closeButton}>
               <Text style={styles.closeButtonText}>Kapat</Text>
             </TouchableOpacity>
           )}
-        </View>
+
       </View>
-    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: '#F5F5F5',
+    padding: 40,
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    marginBottom: 10,
   },
   icons: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: 15,
+    marginBottom: 20,
   },
   editIconContainer: {
     marginRight: 10,
   },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    zIndex: 10,
+  },
   modalContent: {
-    width: '80%',
-    backgroundColor: '#fff',
+    flex: 1,
     padding: 20,
     borderRadius: 10,
+    backgroundColor: '#fff',
   },
   separator: {
-    flex: 1,
     height: 1,
     marginVertical: 10,
     marginBottom: 25,
@@ -256,8 +272,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   contentContainer: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    maxHeight: '70%',
   },
   arrowContainer: {
     padding: 10,
