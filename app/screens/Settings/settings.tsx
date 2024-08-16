@@ -6,7 +6,7 @@ import { ToastAndroid } from 'react-native';
 import React, { useState } from 'react';
 
 export default function SettingsPage() {
-  const {  onLogout, onEditUserPassword, authState } = useAuth();
+  const {  onLogout, onEditUserPassword, onDeleteAccount, authState } = useAuth();
   const navigation = useNavigation();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newPassword, setNewPassword] = useState('');
@@ -57,6 +57,38 @@ export default function SettingsPage() {
     setNewPassword('');
   };
 
+  const handleDeleteAccount = async () => {
+    Alert.alert(
+      "Hesabınızı silmek üzeresiniz",
+      "Bu işlemi geri alamazsınız. Emin misiniz?",
+      [
+        {
+          text: "Hayır",
+          onPress: () => console.log("Hesap silme işlemi iptal edildi"),
+          style: "cancel"
+        },
+        {
+          text: "Evet",
+          onPress: async () => {
+            try {
+              if (!authState?.user) {
+                console.log('authState.user mevcut değil veya null');
+                return;
+              }
+              if(!onDeleteAccount) return;
+              await onDeleteAccount(authState.user.user_id);
+              ToastAndroid.show("Hesabınız başarıyla silindi.", ToastAndroid.SHORT);
+              handleLogout(); // Hesap silindiğinde çıkış yap
+            } catch (error) {
+              Alert.alert('Hata', 'Hesap silinirken bir hata oluştu.');
+            }
+          }
+        }
+      ],
+      { cancelable: true }
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.topRightShape} />
@@ -75,12 +107,15 @@ export default function SettingsPage() {
       </TouchableOpacity>
 
       <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Icon name="log-out-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
         <Text style={styles.buttonText}>Çıkış</Text>
+        </View>
       </TouchableOpacity>
 
       <View style={styles.separator} />
 
-      <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={() => { /* delete account */ }}>
+      <TouchableOpacity style={[styles.button, styles.deleteButton]} onPress={handleDeleteAccount}>
         <Text style={styles.buttonText}>Hesabımı Sil</Text>
       </TouchableOpacity>
       </View>
@@ -183,9 +218,10 @@ const styles = StyleSheet.create({
     marginTop:35,
     marginBottom:1,
     alignItems: 'center',
+    textAlign:'center',
   },
   passButton: {
-    backgroundColor: '#85b2de',
+    backgroundColor: '#4d83b8',
     padding: 15,
     width:270,
     borderRadius: 15,
@@ -195,7 +231,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoutButton: {
-    backgroundColor: '#4d83b8',
+    backgroundColor: '#03346E',
+    alignItems:'center',
   },
   deleteButton: {
     backgroundColor: '#C80036',
