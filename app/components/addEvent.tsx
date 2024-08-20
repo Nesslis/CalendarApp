@@ -5,7 +5,8 @@ import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import moment from 'moment-timezone';
-import { NavigationProp, ParamListBase, useRoute } from '@react-navigation/native';
+import { NavigationProp, ParamListBase, RouteProp } from '@react-navigation/native';
+import Svg, { Path } from 'react-native-svg';
 
 interface Category {
   category_id: number;
@@ -17,6 +18,7 @@ interface AddEventModalProps {
   onEventAdded ?: () => void;
   selectedDate?: string;
   navigation: NavigationProp<ParamListBase>;
+  route: RouteProp<ParamListBase, string>;
 }
 
 interface Event {
@@ -33,19 +35,19 @@ interface Event {
   content: string | null;
 }
 
-export default function AddEvent({ defaultCategoryId, onEventAdded, selectedDate, navigation }: AddEventModalProps) {
+export default function AddEvent({ route, navigation }: AddEventModalProps) {
   const { onGetEventCategories, onAddEvent, onSearchEvents, authState } = useAuth();
+  const { selectedDate, defaultCategoryId, onEventAdded } = route.params as AddEventModalProps || {};
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(defaultCategoryId || null);
   const [title, setTitle] = useState('');
-  const [date, setDate] = useState(selectedDate ? new Date(selectedDate) : new Date());
+  const [date, setDate] = useState(new Date(selectedDate || Date.now()));
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [time, setTime] = useState('');
   const [location, setLocation] = useState('');
   const [participant, setParticipant] = useState('');
   const [content, setContent] = useState('');
   const [existingEvents, setExistingEvents] = useState([]);
-  const route = useRoute();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -74,12 +76,12 @@ export default function AddEvent({ defaultCategoryId, onEventAdded, selectedDate
     fetchEvents();
   }, [onGetEventCategories, onSearchEvents, authState]);
   useEffect(() => {
-    if (route.params?.defaultCategoryId) {
-      setSelectedCategory(route.params.defaultCategoryId);
+    if (defaultCategoryId) {
+      setSelectedCategory(defaultCategoryId);
     } else {
       setSelectedCategory(null);
     }
-  }, [route.params?.defaultCategoryId]);
+  }, [defaultCategoryId]);
   const handleAddEvent = async () => {
     if (!selectedCategory || !title || !date || !time) {
       Alert.alert('Lütfen tüm gerekli alanları doldurun.');
@@ -177,11 +179,25 @@ export default function AddEvent({ defaultCategoryId, onEventAdded, selectedDate
 
   return (
         <View style={styles.modalContainer}>
-          <View style={styles.topRightShape} />
-          <View style={styles.bottomLeftShape} />
-          <View style={styles.bottomLeftShape2} />
+          <Svg height="100%" width="100%" style={styles.topRightWave}>
+        <Path
+          d="M 0,100 Q 50,150 100,100 Q 150,50 200,100 Q 250,150 300,100"
+          fill="transparent"
+          stroke="rgba(71, 140, 207, 0.5)"
+          strokeWidth="20"
+        />
+      </Svg>
+
+      <Svg height="100%" width="100%" style={styles.bottomLeftWave}>
+        <Path
+          d="M 0,100 Q 50,150 100,100 Q 150,50 200,100 Q 250,150 300,100"
+          fill="transparent"
+          stroke="rgba(71, 140, 207, 0.5)"
+          strokeWidth="20"
+        />
+      </Svg>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={28} color="#81A263" />
+            <Ionicons name="arrow-back" size={28} color="#478CCF" />
           </TouchableOpacity>
           
           <View style={styles.picker}>
@@ -237,6 +253,22 @@ const styles = StyleSheet.create({
     padding: 40,
     justifyContent: 'center',
     position: 'relative',
+  },
+  topRightWave: {
+    position: 'absolute',
+    top: -100,
+    right: 50,
+    width: 300,  
+    height: 200,  
+    transform: [{ rotate: '45deg' }],
+  },
+  bottomLeftWave: {
+    position: 'absolute',
+    bottom: -100,
+    left: 50,
+    width: 300,
+    height: 200,
+    transform: [{ rotate: '225deg' }],
   },
   backButton: {
     position: 'absolute',
@@ -317,7 +349,7 @@ const styles = StyleSheet.create({
     marginBottom: 17,
   },
   applyButton: {
-    backgroundColor: 'rgba(182, 199, 170, 1)',
+    backgroundColor: '#478CCF',
     padding: 12,
     borderRadius: 5,
     marginTop: 20,

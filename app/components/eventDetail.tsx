@@ -1,12 +1,11 @@
-import { View, Text, TouchableOpacity, Modal, StyleSheet, TextInput, Alert, ToastAndroid } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert, ToastAndroid, ImageBackground } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
 import React, { useEffect, useState } from 'react';
-import AddNoteModal from './addNote';
-import { NavigationProp, ParamListBase, useRoute } from '@react-navigation/native';
-import { KeyboardAvoidingView } from 'native-base';
+import { NavigationProp, ParamListBase, useNavigation, useRoute } from '@react-navigation/native';
+import Svg, { Path } from 'react-native-svg';
 
 interface Event {
   event_id: number;
@@ -29,17 +28,18 @@ interface Note {
   content: string;
 }
 interface EventProps {
+  event: Event | null ;
   navigation: NavigationProp<ParamListBase>;
 }
 
-export default function EventDetail({  navigation }: EventProps)  {
+export default function EventDetail()  {
   const { onEditEvent, onDeleteEvent, onFetchEventNotes } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [notes, setNotes] = useState<Note[]>([]);
-  const [isAddNoteModalVisible, setIsAddNoteModalVisible] = useState(false);
   const route = useRoute();
-  const { event } = route.params;
+  const { event } = route.params as EventProps;
+  const navigation = useNavigation();
   const [editedEvent, setEditedEvent] = useState(event);
   useEffect(() => {
     if (event?.category_id === 1) {
@@ -217,16 +217,29 @@ export default function EventDetail({  navigation }: EventProps)  {
     const year = date.getUTCFullYear();
     return `${day}.${month}.${year}`;
   };
-  const handleAddNoteModalClose = () => {
-    setIsAddNoteModalVisible(false);
-    fetchNotes(); 
+
+  const openAddNotePage = () => {
+    navigation.navigate('AddNote', { noteType:  'meeting', selectedEvent: event });
   };
-  
   return (
       <View style={styles.modalContainer}>
-        <View style={styles.topRightShape} />
-          <View style={styles.bottomLeftShape} />
-          <View style={styles.bottomLeftShape2} />
+        <Svg height="100%" width="100%" style={styles.topRightWave}>
+        <Path
+          d="M 0,100 Q 50,150 100,100 Q 150,50 200,100 Q 250,150 300,100"
+          fill="transparent"
+          stroke="rgba(71, 140, 207, 0.5)"
+          strokeWidth="20"
+        />
+      </Svg>
+
+      <Svg height="100%" width="100%" style={styles.bottomLeftWave}>
+        <Path
+          d="M 0,100 Q 50,150 100,100 Q 150,50 200,100 Q 250,150 300,100"
+          fill="transparent"
+          stroke="rgba(71, 140, 207, 0.5)"
+          strokeWidth="20"
+        />
+      </Svg>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={28} color="#478CCF" />
           </TouchableOpacity>
@@ -309,16 +322,9 @@ export default function EventDetail({  navigation }: EventProps)  {
                 <Text style={styles.modalLabel}>Toplantı Notları:</Text>
                 {renderNotesIcon()}
               </View>
-                <TouchableOpacity style={styles.addNoteButton} onPress={() => setIsAddNoteModalVisible(true)}>
+                <TouchableOpacity style={styles.addNoteButton} onPress={openAddNotePage}>
                   <Text style={styles.addNoteButtonText}>Not Ekle</Text>
                 </TouchableOpacity>
-                <AddNoteModal
-                visible={isAddNoteModalVisible}
-                onClose={handleAddNoteModalClose}
-                noteType="meeting"
-                selectedEvent={event}
-                onNoteAdded={fetchNotes}
-                />
             </>
           )}
           {isEditMode && (
@@ -339,33 +345,33 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       position: 'relative',
     },
-    topRightShape: {
-      position: 'absolute',
-      top: 0,
-      right: 0,
-      width: 150,
-      height: 120,
-      backgroundColor: 'rgba(71, 140, 207, 0.3)',
-      borderBottomLeftRadius: 250,
-      zIndex: -1,
+    container: {
+      flex: 1,
+      borderWidth:1,
+      justifyContent: 'center',
+      borderColor:'transparent',
+      padding: 20,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
     },
-    bottomLeftShape: {
+    topRightWave: {
       position: 'absolute',
-      bottom: -70,
-      left: -90,
-      width: 230,
-      height: 230,
-      backgroundColor: 'rgba(71, 140, 207, 0.4)',
-      borderRadius: 250,
+      top: -100,
+      right: 50,
+      width: 300,  
+      height: 200,  
+      transform: [{ rotate: '45deg' }],
     },
-    bottomLeftShape2: {
+    bottomLeftWave: {
       position: 'absolute',
-      bottom: -110,
-      left: -10,
-      width: 230,
-      height: 230,
-      backgroundColor: 'rgba(71, 140, 207, 0.3)',
-      borderRadius: 250,
+      bottom: -100,
+      left: 50,
+      width: 300,
+      height: 200,
+      transform: [{ rotate: '225deg' }],
     },
     modalTitle: {
       fontSize: 24,

@@ -1,10 +1,8 @@
 import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Modal } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { FloatingAction } from "react-native-floating-action";
 import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import EventDetail from '../../components/eventDetail';
 import { Picker } from '@react-native-picker/picker';
 import { useAuth } from '../../context/AuthContext';
 import moment from 'moment-timezone';
@@ -26,14 +24,6 @@ interface Event {
 type EventsPageProps = {
   navigation: NavigationProp<ParamListBase>;
 };
-const actions = [
-  {
-    text: 'Etkinlik ekle',
-      name: 'bt_add_event',
-      position: 1
-  }
-];
-
 interface Category {
   category_id: number;
   category_name: string;
@@ -244,11 +234,9 @@ export default function EventsPage({navigation} : EventsPageProps) {
           </View>
         </View>
       </Modal>
-      <FloatingAction
-      color='#478CCF'
-      actions={actions}
-      onPressItem={handleAddEvent}
-      />
+      <TouchableOpacity style={styles.addButton} onPress={handleAddEvent}>
+        <Text style={styles.addButtonText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 }
