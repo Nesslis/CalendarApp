@@ -44,8 +44,10 @@ export default function DayEventsPage({ navigation }: DayEventsPageProps) {
   const filteredEvents = events.filter(event => new Date(event.date).toDateString() === new Date(selectedDate).toDateString());
 
   const handleAddEvent = () => {
+    console.log(selectedDate);
     navigation.navigate('AddEvent', { selectedDate: selectedDate });
   };
+
   const handleEventPress = (event: Event) => {
     navigation.navigate('EventDetail', {event})
   };
@@ -173,7 +175,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 30,
     bottom: 30,
-    backgroundColor: '#81A263',
+    backgroundColor: '#478CCF',
     width: 56,
     height: 56,
     borderRadius: 28,

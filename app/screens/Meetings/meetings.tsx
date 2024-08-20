@@ -223,11 +223,9 @@ export default function MeetingsPage({ navigation }: PageProps) {
         />
       </View>
       </View>
-      <FloatingAction
-      color='#478CCF'
-      actions={actions}
-      onPressItem={ handleAddEvent}
-      />
+      <TouchableOpacity style={styles.addButton} onPress={handleAddEvent}>
+        <Text style={styles.addButtonText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 }

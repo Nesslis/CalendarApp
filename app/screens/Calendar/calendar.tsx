@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView, TouchableWithoutFeedback } from 'react-native';
-import { FloatingAction } from "react-native-floating-action";
 import { useAuth } from '../../context/AuthContext';
 import calendarStyles from './calendarStyles';
 import {  NavigationProp, ParamListBase } from '@react-navigation/native';
@@ -13,14 +12,6 @@ type RootStackParamList = {
   navigation: NavigationProp<ParamListBase>;
 };
 
-
-const actions = [
-  {
-    text: "Etkinlik Ekle",
-    name: "bt_accessibility",
-    position: 2
-  }
-];
 interface Event {
   event_id: number;
   user_id: number;
@@ -253,11 +244,9 @@ const CalendarPage = ({navigation}: RootStackParamList) => {
       <View style={calendarStyles.calendarContainer}>
         {renderDays()}
       </View>
-      <FloatingAction
-      color='#478CCF'
-    actions={actions}
-    onPressItem={handleAddEvent}
-  />
+      <TouchableOpacity style={calendarStyles.addButton} onPress={handleAddEvent}>
+        <Text style={calendarStyles.addButtonText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 };
