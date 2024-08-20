@@ -1,13 +1,11 @@
 import React, { useEffect, useState} from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ToastAndroid} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { Picker } from '@react-native-picker/picker';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 interface AddNoteModalProps {
-  visible: boolean;
-  onClose: () => void;
-  onNoteAdded ?: () => void;
   noteType: 'personal' | 'meeting';
   selectedEvent?: Event ;
 }
@@ -25,12 +23,15 @@ interface Event {
   content: string;
 }
 
-export default function AddNoteModal({ visible, onClose, onNoteAdded, noteType, selectedEvent }: AddNoteModalProps) {
+export default function AddNote() {
   const { onAddNote, onSearchEvents, authState } = useAuth();
+  const route = useRoute();
+  const { noteType, selectedEvent } = route.params as AddNoteModalProps;
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
     const [events, setEvents] = useState([]);
+    const navigation = useNavigation();
 
       useEffect(() => {
         if (noteType === 'meeting') {
@@ -38,6 +39,9 @@ export default function AddNoteModal({ visible, onClose, onNoteAdded, noteType, 
         }
         if (selectedEvent) {
           setSelectedEventId(selectedEvent.event_id);
+        }
+        else {
+          setSelectedEventId(null);
         }
       }, [noteType, selectedEvent]);
     
@@ -65,16 +69,14 @@ export default function AddNoteModal({ visible, onClose, onNoteAdded, noteType, 
              const  event_id= selectedEventId || undefined ;
           if(!onAddNote) return;
           await onAddNote(title, content, event_id);
-          Alert.alert('Başarılı', 'Not başarıyla eklendi!');
+          ToastAndroid.show('Not başarıyla eklendi!', ToastAndroid.SHORT);
           clearForm();
-          if (onNoteAdded) onNoteAdded();
-          onClose();
+          navigation.goBack();
           } else {
             if(!onAddNote) return;
           await onAddNote(title, content);
-          Alert.alert('Başarılı', 'Not başarıyla eklendi!');
-          if (onNoteAdded) onNoteAdded();
-          onClose();
+          ToastAndroid.show('Not başarıyla eklendi!', ToastAndroid.SHORT);
+          navigation.goBack();
           }
         
         } catch (error) {
@@ -84,22 +86,22 @@ export default function AddNoteModal({ visible, onClose, onNoteAdded, noteType, 
       };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true}>
-      <View style={styles.modalBackground}>
-        <View style={styles.modalContainer}>
-          <TouchableOpacity onPress={()=> {clearForm(); onClose();}} style={styles.closeButton}>
-            <Ionicons name="close" size={28} color="#81A263" />
+        <View style={styles.pageContainer}>
+          <View style={styles.diagonalTop} />
+          <View style={styles.diagonalBottom} />
+          <View style={styles.diagonalBottom2} />
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={28} color="#fff" />
           </TouchableOpacity>
+          <View style= {styles.container}>
           {noteType === 'meeting' && (
-            <View style={styles.inputRow}>
-              <Text style={styles.label}>Toplantı Seç:</Text>
               <View style={styles.pickerItem}>
               <Picker
                 selectedValue={selectedEventId}
                 style={styles.picker}
                 onValueChange={(itemValue) => setSelectedEventId(itemValue)}
               >
-                {!selectedEventId && <Picker.Item label="Seç" value={null} />}
+                {!selectedEventId && <Picker.Item label=" Toplantı Seç" value={null} />}
                   {selectedEvent && (
                     <Picker.Item label={selectedEvent.title} value={selectedEvent.event_id} />
                   )}
@@ -107,52 +109,98 @@ export default function AddNoteModal({ visible, onClose, onNoteAdded, noteType, 
                   <Picker.Item key={event.event_id} label={event.title} value={event.event_id} />
                 ))}
               </Picker></View>
-            </View>
           )}
-          <View style={styles.inputRow}>
             <Text style={styles.label}>Başlık:</Text>
             <TextInput style={styles.input} value={title} onChangeText={setTitle} maxLength={50} />
-          </View>
-          <View style={styles.inputRow}>
             <Text style={styles.label}>İçerik:</Text>
-            <TextInput style={styles.input} value={content} onChangeText={setContent}  maxLength={450} />
-          </View>
+            <TextInput style={styles.contentInput} value={content} onChangeText={setContent}  maxLength={450} multiline />
           <TouchableOpacity style={styles.applyButton} onPress={handleAddNote}>
             <Text style={styles.applyButtonText}>Kaydet</Text>
           </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  modalBackground: {
+  pageContainer: {
     flex: 1,
+    backgroundColor: '#F5F5F5',
+    padding: 40,
+  },
+  container: {
+    flex: 1,
+    borderWidth:1,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContainer: {
-    width: '80%',
-    backgroundColor: '#F5EDED',
-    borderRadius: 10,
+    borderColor:'transparent',
     padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    marginTop: 40,
+    marginBottom: 20,
   },
-  closeButton: {
-    alignSelf: 'flex-end',
-    marginBottom: 15,
+  diagonalTop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 100,
+    backgroundColor: 'rgba(71, 140, 207, 0.5)',
+    transform: [{ skewY: '-10deg' }], 
+  },
+  diagonalBottom: {
+    position: 'absolute',
+    bottom: 18,
+    left: -15,
+    right: 0,
+    height: 60,
+    backgroundColor: 'rgba(71, 140, 207, 0.2)',
+    transform: [{ skewY: '-8deg' }], 
+  },
+  diagonalBottom2: {
+    position: 'absolute',
+    bottom: 50,
+    left: -15,
+    right: 0,
+    height: 30,
+    backgroundColor: '#478CCF',
+    transform: [{ skewY: '10deg' }], 
+  },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    zIndex: 10,
+  },
+  contentInput: {
+    height: 120,
+    borderColor: '#7FA1C3',
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    fontSize: 16,
+    borderRadius: 10,
+    width: '100%',
+    textAlignVertical: 'top',
+    padding: 10,
   },
   label: {
     fontSize: 16,
     color: '#03346E',
+    marginBottom: 5,
+    alignSelf: 'flex-start',
   },
   input: {
     height: 40,
     borderColor: '#7FA1C3',
     borderWidth: 1,
+    marginBottom: 20,
     paddingHorizontal: 8,
-    width: '60%',
+    borderRadius: 10,
+    fontSize: 16,
+    width: '100%',
     textAlign: 'center',
   },
   picker: {
@@ -168,13 +216,13 @@ const styles = StyleSheet.create({
   },
   pickerItem: {
     height: 50,
-    width: '60%',
+    width: '100%',
     borderWidth: 1,
     borderColor: '#7FA1C3',
+    borderRadius: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 15,
     marginBottom: 17,
   },
   datePickerButton: {
@@ -189,21 +237,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#333',
   },
-  inputRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
   applyButton: {
-    backgroundColor: 'rgba(182, 199, 170, 1)',
+    backgroundColor: '#478CCF',
     padding: 12,
     borderRadius: 5,
-    marginTop: 20,
+    marginTop: 50,
     width: '100%',
     alignItems: 'center',
   },
   applyButtonText: {
+    fontWeight:'bold',
     color: '#FFF',
   },
 });

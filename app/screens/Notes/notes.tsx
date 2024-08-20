@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
-import AddNoteModal from '../../components/addNote';
 import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation/native';
 
 interface Note {
@@ -19,7 +18,6 @@ export default function NotesPage({navigation} : NotesParamList) {
   const [personalNotes, setPersonalNotes] = useState<Note[]>([]);
   const [meetingNotes, setMeetingNotes] = useState<Note[]>([]);
   const [selectedTab, setSelectedTab] = useState<'personal' | 'meeting'>('personal');
-  const [addNoteModalVisible, setAddNoteModalVisible] = useState(false);
 
   useEffect(() => {
     fetchNotes();
@@ -35,9 +33,6 @@ export default function NotesPage({navigation} : NotesParamList) {
     fetchNotes();
   }, [selectedTab]);
 
-  const openAddNoteModal = () => {
-    setAddNoteModalVisible(true);
-  };
 
   const openNoteModal = (note: Note) => {
     navigation.navigate('NoteDetail', {note})
@@ -55,6 +50,9 @@ export default function NotesPage({navigation} : NotesParamList) {
       <Text style={styles.noteText}>{item.title}</Text>
     </TouchableOpacity>
   );
+  const openAddNotePage = () => {
+    navigation.navigate('AddNote', {noteType: selectedTab });
+  };
 
   return (
     <View style={styles.container}>
@@ -78,8 +76,7 @@ export default function NotesPage({navigation} : NotesParamList) {
         keyExtractor={(item) => item.note_id.toString()}
         numColumns={2}
       />
-      <AddNoteModal visible={addNoteModalVisible} onClose={()=> setAddNoteModalVisible(false)} onNoteAdded={() => fetchNotes} noteType={selectedTab} />
-      <TouchableOpacity style={styles.addButton} onPress={() => openAddNoteModal()}>
+      <TouchableOpacity style={styles.addButton} onPress={openAddNotePage}>
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
     </View>
@@ -126,7 +123,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 30,
     right: 30,
-    backgroundColor: '#7FA1C3',
+    backgroundColor: '#478CCF',
     width: 55,
     height: 55,
     borderRadius: 45,

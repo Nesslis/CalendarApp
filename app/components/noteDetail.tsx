@@ -4,7 +4,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../context/AuthContext';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { ScrollView } from 'native-base';
-import { NavigationProp, ParamListBase } from '@react-navigation/native';
+import { NavigationProp, ParamListBase, useRoute } from '@react-navigation/native';
 
 interface Note {
   note_id: number;
@@ -15,17 +15,14 @@ interface Note {
 }
 
 interface NoteDetailsModalProps {
-  route: {
-    params: {
       note?: Note | null;
       notes?: Note[];
-    }}
   navigation: NavigationProp<ParamListBase>;
 }
 
-export default function NoteDetail({ route, navigation }: NoteDetailsModalProps) {
-  const {note} = route.params;
-  const {notes} = route.params;
+export default function NoteDetail({ navigation }: NoteDetailsModalProps) {
+  const route = useRoute();
+  const {note, notes} = route.params as NoteDetailsModalProps;
   const { onDeleteNote, onEditNote } = useAuth();
   const [currentNoteIndex, setCurrentNoteIndex] = useState(0);
   const [editMode, setEditMode] = useState(false);
@@ -102,17 +99,21 @@ export default function NoteDetail({ route, navigation }: NoteDetailsModalProps)
 
   return (
       <View style={styles.modalContainer}>
+        <View style={styles.diagonalTop} />
+        <View style={styles.diagonalBottom} />
+        <View style={styles.diagonalBottom2} />
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={28} color="#7FA1C3" />
+            <Ionicons name="arrow-back" size={28} color="#fff" />
           </TouchableOpacity>
           <View style={styles.icons}>
               <TouchableOpacity style={styles.editIconContainer} onPress={handleEdit}>
-                <Icon name="pencil" size={22} color="#000" />
+                <Icon name="pencil" size={22} color="#2E236C" />
               </TouchableOpacity>
               <TouchableOpacity onPress={handleDelete}>
                 <Ionicons name="trash" size={24} color="red" />
               </TouchableOpacity>
             </View>
+            <View style= {styles.container}>
             <View style={styles.header}>
             {editMode ? (
               <TextInput 
@@ -170,7 +171,7 @@ export default function NoteDetail({ route, navigation }: NoteDetailsModalProps)
               <Text style={styles.closeButtonText}>Kapat</Text>
             </TouchableOpacity>
           )}
-
+        </View>
       </View>
   );
 }
@@ -184,6 +185,46 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     marginBottom: 10,
+  },
+  container: {
+    flex: 1,
+    borderWidth:1,
+    justifyContent: 'center',
+    borderColor:'transparent',
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    marginBottom: 25,
+  },
+  diagonalTop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 100,
+    backgroundColor: 'rgba(71, 140, 207, 0.5)',
+    transform: [{ skewY: '-10deg' }], 
+  },
+  diagonalBottom: {
+    position: 'absolute',
+    bottom: 18,
+    left: -15,
+    right: 0,
+    height: 60,
+    backgroundColor: 'rgba(71, 140, 207, 0.2)',
+    transform: [{ skewY: '-8deg' }], 
+  },
+  diagonalBottom2: {
+    position: 'absolute',
+    bottom: 50,
+    left: -15,
+    right: 0,
+    height: 30,
+    backgroundColor: '#478CCF',
+    transform: [{ skewY: '10deg' }], 
   },
   icons: {
     flexDirection: 'row',
@@ -228,10 +269,10 @@ const styles = StyleSheet.create({
     textAlign:'center',
   },
   closeButton: {
-    backgroundColor: '#7FA1C3',
+    backgroundColor: '#478CCF',
     padding: 10,
     borderRadius: 5,
-    marginTop: 30,
+    marginBottom: 15,
     alignItems: 'center',
   },
   closeButtonText: {
@@ -241,6 +282,7 @@ const styles = StyleSheet.create({
   editButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 20,
   },
   modalCloseButton: {
     marginTop: 30,
