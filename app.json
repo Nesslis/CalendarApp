@@ -1,17 +1,11 @@
 {
   "expo": {
     "plugins": [
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
-        }
-      ],
       "expo-localization",
       "expo-secure-store"
     ],
     "name": "Calendar App",
-    "slug": "my-app",
+    "slug": "calendar-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./app/assets/images/brand.png",
@@ -26,13 +20,6 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "ios": {
-      "supportsTablet": true,
-      "config": {
-        "usesNonExemptEncryption": false
-      },
-      "bundleIdentifier": "com.nessli.myapp"
-    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./app/assets/images/brand.png",
@@ -45,7 +32,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "485aa073-758c-4889-b485-da4e037d4708"
+        "projectId": "87ff5c76-0f33-4581-a1fa-d568e5902da3"
       }
     }
   }
