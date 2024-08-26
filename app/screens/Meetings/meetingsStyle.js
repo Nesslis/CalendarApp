@@ -158,7 +158,7 @@ export const styles = StyleSheet.create({
       borderBottomColor: '#7FA1C3',
     },
     headerText: {
-      fontSize: 14,
+      fontSize: 16,
       fontWeight: 'bold',
       color: '#03346E',
       textAlign: 'center',
@@ -234,17 +234,20 @@ export const styles = StyleSheet.create({
       color: '#fff',
       textAlign: 'center',
     },
-    fab: {
+    addButton: {
       position: 'absolute',
-      right: 30,
       bottom: 30,
-      backgroundColor: '#81A263',
-      width: 56,
-      height: 56,
-      borderRadius: 28,
+      right: 30,
+      backgroundColor: '#478CCF',
+      width: 55,
+      height: 55,
+      borderRadius: 45,
       justifyContent: 'center',
       alignItems: 'center',
-      elevation: 8,
+    },
+    addButtonText: {
+      color: '#fff',
+      fontSize: 26,
     },
   });
   

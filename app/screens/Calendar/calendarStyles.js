@@ -149,4 +149,19 @@ export default StyleSheet.create({
         fontSize: 18,
         color: '#03346E',
       },
+      addButton: {
+        position: 'absolute',
+        bottom: 30,
+        right: 30,
+        backgroundColor: '#478CCF',
+        width: 55,
+        height: 55,
+        borderRadius: 45,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      addButtonText: {
+        color: '#fff',
+        fontSize: 26,
+      },
 });

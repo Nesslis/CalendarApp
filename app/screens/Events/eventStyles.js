@@ -14,7 +14,7 @@ export default StyleSheet.create({
   },
   eventContainer: {
           flex: 1,
-          alignItems: 'center', // Yatayda ortalar
+          alignItems: 'center',
         },
   welcomeText: {
     fontSize: 24,
@@ -41,6 +41,7 @@ export default StyleSheet.create({
   },
   headerText: {
     fontWeight: 'bold',
+    fontSize: 16,
     color: '#03346E',
   },
   eventRow: {
@@ -152,5 +153,20 @@ export default StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     backgroundColor: 'rgba(182, 199, 170, 1)',
+  },
+  addButton: {
+    position: 'absolute',
+    bottom: 30,
+    right: 30,
+    backgroundColor: '#478CCF',
+    width: 55,
+    height: 55,
+    borderRadius: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 26,
   },
 });
