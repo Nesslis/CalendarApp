@@ -22,6 +22,8 @@ import EditProfile from '../screens/Settings/editProfile';
 import AddEvent from '../components/addEvent';
 import NoteDetail from '../components/noteDetail';
 import EventDetail from '../components/eventDetail';
+import AddNote from '../components/addNote';
+import PasswordReset from '../screens/Auth/forgotPassword';
 
 // Authentication context
 const AuthContext = createContext({ isLoggedIn: false, login: () => {}, logout: () => {} });
@@ -40,6 +42,7 @@ const CalendarStackNavigator = () => {
       <Stack.Screen name="Days" component={DayEventsPage} options={hideHeader} />
       <Stack.Screen name="AddEvent" component={AddEvent} options={hideHeader} />
       <Stack.Screen name="EventDetail" component={EventDetail} options={hideHeader}/>
+      <Stack.Screen name="AddNote" component={AddNote} options={hideHeader} />
     </Stack.Navigator>
   );
 };
@@ -53,6 +56,7 @@ const HomeStackNavigator = () => {
       <Stack.Screen name="HomePage" component={HomePage} options={hideHeader} />
       <Stack.Screen name="EventDetail" component={EventDetail} options={hideHeader} />
       <Stack.Screen name="NoteDetail" component={NoteDetail} options={hideHeader} />
+      <Stack.Screen name="AddNote" component={AddNote} options={hideHeader} />
     </Stack.Navigator>
   );
 };
@@ -65,9 +69,6 @@ const SettingsStackNavigator = () => {
     <Stack.Navigator>
       <Stack.Screen name="Settings" component={SettingsPage} options={hideHeader} />
       <Stack.Screen name="Güncelle" component={EditProfile} options={hideHeader} />
-      <Stack.Screen name="AddEvent" component={AddEvent} options={hideHeader} />
-      <Stack.Screen name="NoteDetail" component={NoteDetail} options={hideHeader} />
-      <Stack.Screen name="EventDetail" component={EventDetail} />
     </Stack.Navigator>
   );
 };
@@ -82,6 +83,7 @@ const EventsStackNavigator = () => {
       <Stack.Screen name="AddEvent" component={AddEvent} options={hideHeader} />
       <Stack.Screen name="NoteDetail" component={NoteDetail} options={hideHeader} />
       <Stack.Screen name="EventDetail" component={EventDetail} options={hideHeader}/>
+      <Stack.Screen name="AddNote" component={AddNote} options={hideHeader} />
     </Stack.Navigator>
   );
 };
@@ -96,6 +98,7 @@ const MeetingsStackNavigator = () => {
       <Stack.Screen name="AddEvent" component={AddEvent} options={hideHeader} />
       <Stack.Screen name="NoteDetail" component={NoteDetail} options={hideHeader} />
       <Stack.Screen name="EventDetail" component={EventDetail} options={hideHeader}/>
+      <Stack.Screen name="AddNote" component={AddNote} options={hideHeader} />
     </Stack.Navigator>
   );
 };
@@ -108,6 +111,7 @@ const NotesStackNavigator = () => {
     <Stack.Navigator>
       <Stack.Screen name="Notes" component={NotesPage} options={hideHeader} />
       <Stack.Screen name="NoteDetail" component={NoteDetail} options={hideHeader} />
+      <Stack.Screen name="AddNote" component={AddNote} options={hideHeader} />
     </Stack.Navigator>
   );
 };
@@ -190,8 +194,9 @@ export const AppNavigator = () => {
           ) : (
             <>
             <Stack.Screen name="Welcome" component={WelcomePage} options={hideHeader} />
-             <Stack.Screen name="Login" component={LoginPage} options={hideHeader} />
+            <Stack.Screen name="Login" component={LoginPage} options={hideHeader} />
             <Stack.Screen name="Register" component={RegisterPage} options={hideHeader} />
+            <Stack.Screen name='ForgotPassword' component={PasswordReset} options={hideHeader} />
             </>
           )}
       </Stack.Navigator>

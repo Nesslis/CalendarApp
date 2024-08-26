@@ -86,6 +86,10 @@ export default function LoginPage({ navigation }: LoginPageProps) {
             />
           </TouchableOpacity>
         </View>
+        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+          <Text style={styles.forgotPasswordText}>Şifremi unuttum</Text>
+        </TouchableOpacity>
+
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Giriş Yap</Text>
@@ -106,7 +110,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
+  forgotPasswordText: {
+    color: '#03346E',
+    fontSize: 16,
+    marginBottom: 15,
+    textDecorationLine: 'underline',
+  },
   topRightShape: {
     position: 'absolute',
     top: 0,
