@@ -44,7 +44,7 @@ export default function EditProfile() {
         'Kullanıcı bilgileri başarıyla güncellendi!',
         ToastAndroid.SHORT
       );
-      navigation.goBack;
+      navigation.goBack();
     } catch (error) {
       console.error('Kullanıcı bilgileri güncellenirken hata oluştu:', error);
       Alert.alert('Hata', 'Bilgiler güncellenirken bir hata oluştu.');

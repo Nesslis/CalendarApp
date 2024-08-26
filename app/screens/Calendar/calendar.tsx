@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView, TouchableWithoutFeedback } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import calendarStyles from './calendarStyles';
-import {  NavigationProp, ParamListBase } from '@react-navigation/native';
+import {  NavigationProp, ParamListBase, useRoute } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -25,7 +25,7 @@ interface Event {
   updated_at: string;
   content: string | null;
 }
-const CalendarPage = ({navigation}: RootStackParamList) => {
+const CalendarPage = ({navigation}: {navigation: RootStackParamList}) => {
   const currentDate = new Date();
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth());
