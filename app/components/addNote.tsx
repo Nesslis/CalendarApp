@@ -94,6 +94,7 @@ export default function AddNote() {
             <Ionicons name="arrow-back" size={28} color="#fff" />
           </TouchableOpacity>
           <View style= {styles.container}>
+            <Text style={styles.title} >Not ekle</Text>
           {noteType === 'meeting' && (
               <View style={styles.pickerItem}>
               <Picker
@@ -140,6 +141,13 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     marginTop: 40,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 26,
+    color: '#03346E',
+    fontWeight: 'bold',
+    alignSelf:'center',
     marginBottom: 20,
   },
   diagonalTop: {

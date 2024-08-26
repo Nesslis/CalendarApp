@@ -199,6 +199,7 @@ export default function AddEvent({ route, navigation }: AddEventModalProps) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={28} color="#478CCF" />
           </TouchableOpacity>
+          <Text style={styles.title}>Etkinlik Ekle</Text>
           
           <View style={styles.picker}>
             <Picker
@@ -276,33 +277,12 @@ const styles = StyleSheet.create({
     left: 20,
     zIndex: 10,
   },
-  topRightShape: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 150,
-    height: 120,
-    backgroundColor: 'rgba(129,162,99, 0.3)',
-    borderBottomLeftRadius: 250,
-    zIndex: -1,
-  },
-  bottomLeftShape: {
-    position: 'absolute',
-    bottom: -70,
-    left: -90,
-    width: 230,
-    height: 230,
-    backgroundColor: 'rgba(129, 162, 99, 0.4)',
-    borderRadius: 250,
-  },
-  bottomLeftShape2: {
-    position: 'absolute',
-    bottom: -110,
-    left: -10,
-    width: 230,
-    height: 230,
-    backgroundColor: 'rgba(129, 162, 99, 0.3)',
-    borderRadius: 250,
+  title: {
+    fontSize: 26,
+    color: '#03346E',
+    fontWeight: 'bold',
+    alignSelf:'center',
+    marginBottom: 20,
   },
   label: {
     fontSize: 16,
