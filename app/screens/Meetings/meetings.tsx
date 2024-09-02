@@ -1,19 +1,12 @@
 import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Modal, TextInput} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useCallback, useEffect, useState } from 'react';
-import { FloatingAction } from "react-native-floating-action";
 import { NavigationProp, ParamListBase, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useAuth } from '../../context/AuthContext';
 import { styles } from './meetingsStyle';
 import moment from 'moment';
-const actions = [
-  {
-    text: "Toplantı Ekle",
-    name: "bt_accessibility",
-    position: 2
-  }
-];
+
 interface Event {
   event_id: number;
   user_id: number;
